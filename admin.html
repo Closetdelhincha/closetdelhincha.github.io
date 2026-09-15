@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel - El Closet del Hincha</title>
+<style>
+  :root{ --bg:#0f1115; --panel:#171a21; --panel2:#1f232d; --text:#eef1f6; --muted:#9aa3b2; --accent:#22c55e; --border:#2a2f3a; --danger:#ef4444; --warn:#f59e0b; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  header{padding:14px 18px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  header h1{font-size:17px;margin:0}
+  header h1 span{color:var(--accent)}
+  .logout{background:none;border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer}
+  .tabs{display:flex;gap:0;background:var(--panel);border-bottom:1px solid var(--border);padding:0 18px}
+  .tab{padding:12px 16px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;font-size:14px;font-weight:600}
+  .tab.active{color:var(--text);border-color:var(--accent)}
+  main{padding:16px 18px 60px;max-width:1100px;margin:0 auto}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+  .toolbar input,.toolbar select{padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:13px}
+  .toolbar input[type=search]{flex:1;min-width:180px}
+  .btn{background:var(--accent);color:#07130a;border:none;padding:9px 16px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer}
+  .btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+  .btn.danger{background:var(--danger);color:#fff}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .status-bar{font-size:12px;color:var(--muted);margin-bottom:10px;min-height:16px}
+  .status-bar.err{color:var(--danger)}
+  .status-bar.ok{color:var(--accent)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--muted);font-weight:600;padding:8px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg)}
+  td{padding:8px;border-bottom:1px solid var(--border);vertical-align:middle}
+  td img{width:44px;height:44px;object-fit:cover;border-radius:6px}
+  td input[type=number]{width:70px;padding:5px 7px;border-radius:6px;border:1px solid var(--border);background:var(--panel2);color:var(--text)}
+  td input[type=text]{width:100%;padding:5px 7px;border-radius:6px;border:1px solid var(--border);background:var(--panel2);color:var(--text)}
+  .rowcount{color:var(--muted);font-size:12px;margin:8px 0}
+  .gate{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+  .gate-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:400px;width:100%}
+  .gate-box h2{margin:0 0 6px}
+  .gate-box p{color:var(--muted);font-size:13px;margin:0 0 16px}
+  .gate-box input{width:100%;padding:11px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);color:var(--text);margin-bottom:12px}
+  [hidden]{display:none!important}
+  .order-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+  .order-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .order-name{font-weight:700}
+  .order-date{color:var(--muted);font-size:12px}
+  .order-items{white-space:pre-wrap;font-size:13px;color:var(--muted);margin:8px 0;line-height:1.5}
+  .order-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  select.status-sel{padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:12px;font-weight:600}
+  .status-nuevo{color:var(--warn)}
+  .status-confirmado{color:#3b82f6}
+  .status-armado{color:#a78bfa}
+  .status-enviado{color:var(--accent)}
+  .new-order-form{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+  .new-order-form textarea,.new-order-form input{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--panel2);color:var(--text);margin-bottom:8px;font-family:inherit;font-size:13px}
+  .new-order-form textarea{min-height:80px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <h2>Panel del dueno</h2>
+    <p>Ingresa tu token de GitHub (permiso Contents: Read/write sobre este repo). Se guarda solo en este navegador.</p>
+    <input type="password" id="tokenInput" placeholder="github_pat_...">
+    <button class="btn" id="tokenSave" style="width:100%">Entrar</button>
+  </div>
+</div>
+
+<div id="app" hidden>
+  <header>
+    <h1>Panel <span>El Closet del Hincha</span></h1>
+    <button class="logout" id="logoutBtn">Cerrar sesion</button>
+  </header>
+  <div class="tabs">
+    <div class="tab active" data-tab="productos">Productos</div>
+    <div class="tab" data-tab="pedidos">Pedidos</div>
+  </div>
+  <main>
+    <div id="statusBar" class="status-bar"></div>
+
+    <section id="tabProductos">
+      <div class="toolbar">
+        <input type="search" id="pSearch" placeholder="Buscar producto o equipo...">
+        <select id="pActiveFilter">
+          <option value="">Todos</option>
+          <option value="true">Activos</option>
+          <option value="false">Inactivos</option>
+        </select>
+        <input type="number" id="bulkPrice" placeholder="Precio masivo $" style="width:120px">
+        <button class="btn secondary" id="bulkApply">Aplicar a filtrados</button>
+        <button class="btn" id="saveProducts">Guardar cambios en GitHub</button>
+      </div>
+      <div class="rowcount" id="pCount"></div>
+      <div style="overflow-x:auto;max-height:70vh;overflow-y:auto">
+        <table>
+          <thead><tr><th></th><th>Producto</th><th>Equipo</th><th>Precio</th><th>Activo</th></tr></thead>
+          <tbody id="pTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="tabPedidos" hidden>
+      <div class="new-order-form">
+        <h3 style="margin:0 0 10px">+ Registrar pedido (copiado de WhatsApp)</h3>
+        <div class="grid2">
+          <input type="text" id="oName" placeholder="Nombre del cliente">
+          <input type="text" id="oPhone" placeholder="Telefono">
+        </div>
+        <textarea id="oItems" placeholder="Pega aca el detalle del pedido (productos, tallas, cantidades)..."></textarea>
+        <input type="number" id="oTotal" placeholder="Total $">
+        <button class="btn" id="addOrder">Agregar pedido</button>
+      </div>
+      <div class="toolbar">
+        <button class="btn secondary" id="saveOrders">Guardar cambios en GitHub</button>
+      </div>
+      <div id="ordersList"></div>
+    </section>
+  </main>
+</div>
+
+<script>
+var REPO = 'gustavoabello12-cloud/Closet-del-hincha-v2-claude-desktop';
+var TOKEN = localStorage.getItem('gh_token_hincha') || '';
+var products = [];
+var orders = [];
+var productsSha = null, ordersSha = null;
+
+function setStatus(msg, type) {
+  var el = document.getElementById('statusBar');
+  el.textContent = msg;
+  el.className = 'status-bar' + (type ? ' '+type : '');
+}
+
+function b64DecodeUnicode(str) {
+  return decodeURIComponent(atob(str).split('').map(function(c){
+    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+}
+
+function ghGet(path) {
+  return fetch('https://api.github.com/repos/' + REPO + '/contents/' + path, {
+    headers: {'Authorization':'Bearer '+TOKEN, 'Accept':'application/vnd.github+json'}
+  }).then(function(res){
+    if (res.status === 404) return {content: null, sha: null};
+    return res.json().then(function(j){
+      var text = b64DecodeUnicode(j.content.replace(/\n/g,''));
+      return {content: JSON.parse(text), sha: j.sha};
+    });
+  });
+}
+
+function ghPut(path, data, sha, message) {
+  var json = JSON.stringify(data, null, 1);
+  var utf8 = new TextEncoder().encode(json);
+  var binary=''; for (var i=0;i<utf8.length;i++) binary+=String.fromCharCode(utf8[i]);
+  var base64 = btoa(binary);
+  var body = {message: message, content: base64};
+  if (sha) body.sha = sha;
+  return fetch('https://api.github.com/repos/' + REPO + '/contents/' + path, {
+    method:'PUT', headers:{'Authorization':'Bearer '+TOKEN,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  }).then(function(res){
+    if (!res.ok) { return res.json().then(function(j){ throw new Error(j.message || res.status); }); }
+    return res.json().then(function(j){ return j.content.sha; });
+  });
+}
+
+function loadAll() {
+  setStatus('Cargando datos desde GitHub...');
+  Promise.all([ghGet('data/productos-futbol.json'), ghGet('data/pedidos.json')]).then(function(results){
+    var p = results[0], o = results[1];
+    products = p.content || []; productsSha = p.sha;
+    orders = o.content || []; ordersSha = o.sha;
+    setStatus('Datos cargados.', 'ok');
+    renderProducts(); renderOrders();
+  }).catch(function(e){ setStatus('Error cargando: ' + e.message, 'err'); });
+}
+
+function filteredProducts() {
+  var q = document.getElementById('pSearch').value.trim().toLowerCase();
+  var af = document.getElementById('pActiveFilter').value;
+  return products.filter(function(p){
+    if (q && p.name.toLowerCase().indexOf(q) === -1 && (p.team||'').toLowerCase().indexOf(q) === -1) return false;
+    if (af && String(p.active) !== af) return false;
+    return true;
+  });
+}
+
+function renderProducts() {
+  var list = filteredProducts();
+  document.getElementById('pCount').textContent = list.length + ' de ' + products.length + ' productos';
+  var html = '';
+  list.forEach(function(p){
+    var idx = products.indexOf(p);
+    html += '<tr>' +
+      '<td><img src="' + p.image + '" loading="lazy"></td>' +
+      '<td>' + p.name + '</td>' +
+      '<td>' + (p.team||'') + '</td>' +
+      '<td><input type="number" data-idx="' + idx + '" data-f="price" value="' + p.price + '"></td>' +
+      '<td><input type="checkbox" data-idx="' + idx + '" data-f="active" ' + (p.active?'checked':'') + '></td>' +
+      '</tr>';
+  });
+  document.getElementById('pTableBody').innerHTML = html;
+  document.querySelectorAll('#pTableBody input[data-f=price]').forEach(function(el){ el.addEventListener('change', function(e){
+    products[+e.target.getAttribute('data-idx')].price = Number(e.target.value);
+  }); });
+  document.querySelectorAll('#pTableBody input[data-f=active]').forEach(function(el){ el.addEventListener('change', function(e){
+    products[+e.target.getAttribute('data-idx')].active = e.target.checked;
+  }); });
+}
+
+function renderOrders() {
+  var sorted = orders.slice().reverse();
+  var html = '';
+  sorted.forEach(function(o){
+    var idx = orders.indexOf(o);
+    html += '<div class="order-card">' +
+      '<div class="order-head">' +
+        '<div><div class="order-name">' + (o.name||'Sin nombre') + ' ' + (o.phone?('- '+o.phone):'') + '</div><div class="order-date">' + o.date + '</div></div>' +
+        '<div style="font-weight:700">$' + (o.total||0) + '</div>' +
+      '</div>' +
+      '<div class="order-items">' + (o.items||'').replace(/</g,'&lt;') + '</div>' +
+      '<div class="order-foot">' +
+        '<select class="status-sel status-' + o.status + '" data-idx="' + idx + '">' +
+          '<option value="nuevo"' + (o.status==='nuevo'?' selected':'') + '>Nuevo</option>' +
+          '<option value="confirmado"' + (o.status==='confirmado'?' selected':'') + '>Confirmado</option>' +
+          '<option value="armado"' + (o.status==='armado'?' selected':'') + '>Armado</option>' +
+          '<option value="enviado"' + (o.status==='enviado'?' selected':'') + '>Enviado</option>' +
+        '</select>' +
+        '<button class="btn danger" data-del="' + idx + '" style="padding:5px 10px;font-size:11px">Eliminar</button>' +
+      '</div></div>';
+  });
+  document.getElementById('ordersList').innerHTML = html || '<p style="color:var(--muted)">Todavia no hay pedidos registrados.</p>';
+  document.querySelectorAll('.status-sel').forEach(function(el){ el.addEventListener('change', function(e){
+    orders[+e.target.getAttribute('data-idx')].status = e.target.value;
+    e.target.className = 'status-sel status-'+e.target.value;
+  }); });
+  document.querySelectorAll('[data-del]').forEach(function(el){ el.addEventListener('click', function(e){
+    if (confirm('Eliminar este pedido?')) { orders.splice(+e.target.getAttribute('data-del'),1); renderOrders(); }
+  }); });
+}
+
+document.getElementById('tokenSave').addEventListener('click', function(){
+  var t = document.getElementById('tokenInput').value.trim();
+  if (!t) return;
+  TOKEN = t; localStorage.setItem('gh_token_hincha', t);
+  document.getElementById('gate').hidden = true;
+  document.getElementById('app').hidden = false;
+  loadAll();
+});
+document.getElementById('logoutBtn').addEventListener('click', function(){
+  localStorage.removeItem('gh_token_hincha');
+  location.reload();
+});
+document.querySelectorAll('.tab').forEach(function(t){ t.addEventListener('click', function(){
+  document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); });
+  t.classList.add('active');
+  document.getElementById('tabProductos').hidden = t.getAttribute('data-tab') !== 'productos';
+  document.getElementById('tabPedidos').hidden = t.getAttribute('data-tab') !== 'pedidos';
+}); });
+document.getElementById('pSearch').addEventListener('input', renderProducts);
+document.getElementById('pActiveFilter').addEventListener('change', renderProducts);
+document.getElementById('bulkApply').addEventListener('click', function(){
+  var val = Number(document.getElementById('bulkPrice').value);
+  if (!val) return;
+  filteredProducts().forEach(function(p){ p.price = val; });
+  renderProducts();
+  setStatus('Precio $' + val + ' aplicado a ' + filteredProducts().length + ' productos (sin guardar todavia).');
+});
+document.getElementById('saveProducts').addEventListener('click', function(){
+  setStatus('Guardando en GitHub...');
+  ghPut('data/productos-futbol.json', products, productsSha, 'update productos desde panel').then(function(sha){
+    productsSha = sha;
+    setStatus('Productos guardados correctamente.', 'ok');
+  }).catch(function(e){ setStatus('Error al guardar: ' + e.message, 'err'); });
+});
+document.getElementById('addOrder').addEventListener('click', function(){
+  var name = document.getElementById('oName').value.trim();
+  var phone = document.getElementById('oPhone').value.trim();
+  var items = document.getElementById('oItems').value.trim();
+  var total = Number(document.getElementById('oTotal').value) || 0;
+  if (!items) { alert('Pega el detalle del pedido'); return; }
+  orders.push({name: name, phone: phone, items: items, total: total, status:'nuevo', date: new Date().toLocaleString('es-VE')});
+  document.getElementById('oName').value=''; document.getElementById('oPhone').value='';
+  document.getElementById('oItems').value=''; document.getElementById('oTotal').value='';
+  renderOrders();
+  setStatus('Pedido agregado (sin guardar todavia) - no olvides Guardar cambios en GitHub.', 'ok');
+});
+document.getElementById('saveOrders').addEventListener('click', function(){
+  setStatus('Guardando pedidos en GitHub...');
+  ghPut('data/pedidos.json', orders, ordersSha, 'update pedidos desde panel').then(function(sha){
+    ordersSha = sha;
+    setStatus('Pedidos guardados correctamente.', 'ok');
+  }).catch(function(e){ setStatus('Error al guardar: ' + e.message, 'err'); });
+});
+
+if (TOKEN) { document.getElementById('gate').hidden = true; document.getElementById('app').hidden = false; loadAll(); }
+</script>
+</body>
+</html>
