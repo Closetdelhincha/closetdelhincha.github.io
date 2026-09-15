@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Closet del Hincha</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1f232d; --text:#eef1f6; --muted:#9aa3b2;
+    --accent:#22c55e; --accent2:#16a34a; --border:#2a2f3a; --danger:#ef4444;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  header{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  header h1{font-size:18px;margin:0;white-space:nowrap}
+  header h1 span{color:var(--accent)}
+  .cart-btn{position:relative;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:6px}
+  .cart-count{background:var(--accent);color:#07130a;border-radius:999px;font-size:12px;font-weight:700;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+  .filters{padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:53px;z-index:19}
+  .filters input[type=search]{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:15px;margin-bottom:10px}
+  .filters input[type=search]::placeholder{color:var(--muted)}
+  .chip-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+  .chip-row::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;background:var(--panel2);border:1px solid var(--border);color:var(--muted);padding:7px 13px;border-radius:999px;font-size:13px;cursor:pointer;white-space:nowrap}
+  .chip.active{background:var(--accent);color:#07130a;border-color:var(--accent);font-weight:600}
+  .team-select{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:14px;margin-top:10px}
+  main{padding:14px 16px 100px}
+  .result-count{color:var(--muted);font-size:13px;margin:4px 0 12px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  @media(min-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}
+  @media(min-width:900px){.grid{grid-template-columns:repeat(4,1fr)}}
+  @media(min-width:1200px){.grid{grid-template-columns:repeat(5,1fr)}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+  .card img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#0a0c10;display:block}
+  .card-body{padding:10px 10px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .card-name{font-size:13px;font-weight:600;line-height:1.3;min-height:34px}
+  .card-price{color:var(--accent);font-weight:700;font-size:15px}
+  .card-tags{display:flex;flex-wrap:wrap;gap:4px}
+  .tag{font-size:10px;color:var(--muted);background:var(--panel2);padding:2px 7px;border-radius:999px}
+  .add-btn{margin-top:auto;background:var(--accent);color:#07130a;border:none;padding:9px;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer}
+  .add-btn:active{background:var(--accent2)}
+  .empty{text-align:center;color:var(--muted);padding:60px 20px}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:29;display:none}
+  .overlay.show{display:block}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:100%;max-width:420px;background:var(--panel);z-index:30;transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column;border-left:1px solid var(--border)}
+  .drawer.show{transform:translateX(0)}
+  .drawer-head{padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .drawer-head h2{margin:0;font-size:17px}
+  .drawer-close{background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1}
+  .drawer-items{flex:1;overflow-y:auto;padding:12px 16px}
+  .cart-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+  .cart-item img{width:56px;height:56px;border-radius:8px;object-fit:cover;flex:0 0 auto}
+  .cart-item-info{flex:1;min-width:0}
+  .cart-item-name{font-size:13px;font-weight:600}
+  .cart-item-meta{font-size:12px;color:var(--muted);margin-top:2px}
+  .cart-item-remove{background:none;border:none;color:var(--danger);font-size:12px;cursor:pointer;padding:0;margin-top:4px}
+  .qty-ctl{display:flex;align-items:center;gap:8px;margin-top:6px}
+  .qty-ctl button{width:24px;height:24px;border-radius:6px;border:1px solid var(--border);background:var(--panel2);color:var(--text);cursor:pointer}
+  .drawer-foot{padding:16px;border-top:1px solid var(--border)}
+  .drawer-foot input{width:100%;padding:11px 12px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);color:var(--text);margin-bottom:8px;font-size:14px}
+  .total-row{display:flex;justify-content:space-between;font-size:16px;font-weight:700;margin-bottom:12px}
+  .wa-btn{width:100%;background:#25D366;color:#07130a;border:none;padding:13px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+  .wa-btn:disabled{opacity:.5;cursor:not-allowed}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:39;display:none;align-items:flex-end;justify-content:center}
+  .modal-overlay.show{display:flex}
+  .modal{background:var(--panel);width:100%;max-width:420px;border-radius:16px 16px 0 0;padding:18px}
+  .modal h3{margin:0 0 12px;font-size:16px}
+  .size-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .size-btn{padding:9px 16px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);color:var(--text);cursor:pointer;font-size:14px}
+  .size-btn.sel{background:var(--accent);color:#07130a;border-color:var(--accent);font-weight:700}
+  .modal-confirm{width:100%;background:var(--accent);color:#07130a;border:none;padding:12px;border-radius:10px;font-weight:700;cursor:pointer}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:#07130a;padding:10px 18px;border-radius:10px;font-weight:600;font-size:14px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
+  .toast.show{opacity:1}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>El Closet <span>del Hincha</span></h1>
+  <button class="cart-btn" id="cartBtn">Carrito <span class="cart-count" id="cartCount">0</span></button>
+</header>
+
+<div class="filters">
+  <input type="search" id="searchInput" placeholder="Buscar equipo, seleccion, edicion...">
+  <div class="chip-row" id="tagChips"></div>
+  <select class="team-select" id="teamSelect"><option value="">Todos los equipos/selecciones</option></select>
+</div>
+
+<main>
+  <div class="result-count" id="resultCount"></div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>El Closet del Hincha - Catalogo de futbol - Pedidos por WhatsApp</footer>
+
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head"><h2>Tu pedido</h2><button class="drawer-close" id="drawerClose">X</button></div>
+  <div class="drawer-items" id="drawerItems"></div>
+  <div class="drawer-foot">
+    <input type="text" id="custName" placeholder="Tu nombre">
+    <input type="tel" id="custPhone" placeholder="Tu telefono (para coordinar)">
+    <div class="total-row"><span>Total</span><span id="cartTotal">$0</span></div>
+    <button class="wa-btn" id="waBtn">Enviar pedido por WhatsApp</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Elegi tu talla</h3>
+    <div class="size-row" id="sizeRow"></div>
+    <button class="modal-confirm" id="modalConfirm">Agregar al carrito</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var WHATSAPP_NUMBER = "584242132028";
+var PRODUCTS = [];
+var cart = JSON.parse(localStorage.getItem('cart_hincha') || '[]');
+var activeTag = '';
+var pendingProduct = null, pendingSize = null;
+
+var TAGS = [
+  {id:'', label:'Todos'}, {id:'local', label:'Local'}, {id:'visitante', label:'Visitante'},
+  {id:'retro', label:'Retro'}, {id:'entrenamiento', label:'Entrenamiento'}, {id:'portero', label:'Portero'},
+  {id:'especial', label:'Especial/Conmemorativa'}, {id:'ninos', label:'Ninos'}, {id:'femenino', label:'Femenino'}
+];
+
+function init() {
+  fetch('data/productos-futbol.json').then(function(res){ return res.json(); }).then(function(data){
+    PRODUCTS = data.filter(function(p){ return p.active; });
+    renderTagChips();
+    renderTeamSelect();
+    render();
+    updateCartUI();
+  });
+  document.getElementById('searchInput').addEventListener('input', render);
+  document.getElementById('teamSelect').addEventListener('change', render);
+  document.getElementById('cartBtn').addEventListener('click', openDrawer);
+  document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+  document.getElementById('overlay').addEventListener('click', closeDrawer);
+  document.getElementById('waBtn').addEventListener('click', sendWhatsApp);
+  document.getElementById('modalConfirm').addEventListener('click', confirmAdd);
+}
+
+function renderTagChips() {
+  var row = document.getElementById('tagChips');
+  var html = '';
+  for (var i=0;i<TAGS.length;i++) {
+    var t = TAGS[i];
+    html += '<button class="chip ' + (t.id===activeTag?'active':'') + '" data-tag="' + t.id + '">' + t.label + '</button>';
+  }
+  row.innerHTML = html;
+  var chips = row.querySelectorAll('.chip');
+  chips.forEach(function(el){ el.addEventListener('click', function(){ activeTag = el.getAttribute('data-tag'); renderTagChips(); render(); }); });
+}
+
+function renderTeamSelect() {
+  var teamsSet = {};
+  PRODUCTS.forEach(function(p){ if (p.team) teamsSet[p.team] = true; });
+  var teams = Object.keys(teamsSet).sort(function(a,b){ return a.localeCompare(b); });
+  var sel = document.getElementById('teamSelect');
+  var html = '<option value="">Todos los equipos/selecciones</option>';
+  teams.forEach(function(t){ html += '<option value="' + t + '">' + t + '</option>'; });
+  sel.innerHTML = html;
+}
+
+function filteredProducts() {
+  var q = document.getElementById('searchInput').value.trim().toLowerCase();
+  var team = document.getElementById('teamSelect').value;
+  return PRODUCTS.filter(function(p){
+    if (activeTag && p.tags.indexOf(activeTag) === -1) return false;
+    if (team && p.team !== team) return false;
+    if (q && p.name.toLowerCase().indexOf(q) === -1) return false;
+    return true;
+  });
+}
+
+function render() {
+  var list = filteredProducts();
+  document.getElementById('resultCount').textContent = list.length + ' producto' + (list.length===1?'':'s');
+  var grid = document.getElementById('grid');
+  if (list.length === 0) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1">No encontramos productos con esos filtros.</div>';
+    return;
+  }
+  var html = '';
+  list.forEach(function(p){
+    var tagsHtml = '';
+    p.tags.slice(0,2).forEach(function(t){ tagsHtml += '<span class="tag">' + t + '</span>'; });
+    html += '<div class="card">' +
+      '<img src="' + p.image + '" alt="' + p.name + '" loading="lazy">' +
+      '<div class="card-body">' +
+        '<div class="card-name">' + p.name + '</div>' +
+        '<div class="card-price">$' + p.price + '</div>' +
+        '<div class="card-tags">' + tagsHtml + '</div>' +
+        '<button class="add-btn" data-id="' + p.id + '">Agregar</button>' +
+      '</div></div>';
+  });
+  grid.innerHTML = html;
+  grid.querySelectorAll('.add-btn').forEach(function(btn){ btn.addEventListener('click', function(){ openSizeModal(btn.getAttribute('data-id')); }); });
+}
+
+function openSizeModal(id) {
+  pendingProduct = PRODUCTS.find(function(p){ return p.id === id; });
+  pendingSize = null;
+  document.getElementById('modalTitle').textContent = pendingProduct.name;
+  var row = document.getElementById('sizeRow');
+  var html = '';
+  pendingProduct.sizes.forEach(function(s){ html += '<button class="size-btn" data-size="' + s + '">' + s + '</button>'; });
+  row.innerHTML = html;
+  row.querySelectorAll('.size-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      pendingSize = b.getAttribute('data-size');
+      row.querySelectorAll('.size-btn').forEach(function(x){ x.classList.remove('sel'); });
+      b.classList.add('sel');
+    });
+  });
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function confirmAdd() {
+  if (!pendingSize) { showToast('Elegi una talla'); return; }
+  var existing = null;
+  for (var i=0;i<cart.length;i++) { if (cart[i].id === pendingProduct.id && cart[i].size === pendingSize) { existing = cart[i]; break; } }
+  if (existing) existing.qty++;
+  else cart.push({id: pendingProduct.id, name: pendingProduct.name, image: pendingProduct.image, price: pendingProduct.price, size: pendingSize, qty: 1});
+  saveCart();
+  document.getElementById('modalOverlay').classList.remove('show');
+  showToast('Agregado al carrito');
+}
+
+function saveCart() { localStorage.setItem('cart_hincha', JSON.stringify(cart)); updateCartUI(); }
+
+function updateCartUI() {
+  var count = 0; cart.forEach(function(c){ count += c.qty; });
+  document.getElementById('cartCount').textContent = count;
+  var items = document.getElementById('drawerItems');
+  if (cart.length === 0) {
+    items.innerHTML = '<div class="empty">Tu carrito esta vacio</div>';
+  } else {
+    var html = '';
+    cart.forEach(function(c, i){
+      html += '<div class="cart-item">' +
+        '<img src="' + c.image + '" alt="">' +
+        '<div class="cart-item-info">' +
+          '<div class="cart-item-name">' + c.name + '</div>' +
+          '<div class="cart-item-meta">Talla ' + c.size + ' - $' + c.price + ' c/u</div>' +
+          '<div class="qty-ctl">' +
+            '<button data-i="' + i + '" data-d="-1">-</button>' +
+            '<span>' + c.qty + '</span>' +
+            '<button data-i="' + i + '" data-d="1">+</button>' +
+          '</div>' +
+          '<button class="cart-item-remove" data-rm="' + i + '">Quitar</button>' +
+        '</div></div>';
+    });
+    items.innerHTML = html;
+    items.querySelectorAll('[data-d]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var i = +b.getAttribute('data-i'), d = +b.getAttribute('data-d');
+        cart[i].qty = Math.max(1, cart[i].qty + d);
+        saveCart();
+      });
+    });
+    items.querySelectorAll('[data-rm]').forEach(function(b){
+      b.addEventListener('click', function(){ cart.splice(+b.getAttribute('data-rm'), 1); saveCart(); });
+    });
+  }
+  var total = 0; cart.forEach(function(c){ total += c.price*c.qty; });
+  document.getElementById('cartTotal').textContent = '$' + total;
+  document.getElementById('waBtn').disabled = cart.length === 0;
+}
+
+function openDrawer() { document.getElementById('drawer').classList.add('show'); document.getElementById('overlay').classList.add('show'); }
+function closeDrawer() { document.getElementById('drawer').classList.remove('show'); document.getElementById('overlay').classList.remove('show'); }
+
+function sendWhatsApp() {
+  if (cart.length === 0) return;
+  var name = document.getElementById('custName').value.trim();
+  var phone = document.getElementById('custPhone').value.trim();
+  var msg = 'Hola! Quiero hacer un pedido en El Closet del Hincha:\n\n';
+  var total = 0;
+  cart.forEach(function(c){
+    msg += '- ' + c.name + ' - Talla ' + c.size + ' x' + c.qty + ' - $' + (c.price*c.qty) + '\n';
+    total += c.price*c.qty;
+  });
+  msg += '\nTotal: $' + total + '\n';
+  if (name) msg += '\nNombre: ' + name;
+  if (phone) msg += '\nTelefono: ' + phone;
+  var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+}
+
+function showToast(text) {
+  var t = document.getElementById('toast');
+  t.textContent = text; t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 1600);
+}
+
+init();
+</script>
+</body>
+</html>
