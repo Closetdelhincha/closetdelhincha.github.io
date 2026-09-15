@@ -19,11 +19,12 @@
   .filters{padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:53px;z-index:19}
   .filters input[type=search]{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:15px;margin-bottom:10px}
   .filters input[type=search]::placeholder{color:var(--muted)}
-  .chip-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+  .chip-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;margin-bottom:8px}
   .chip-row::-webkit-scrollbar{display:none}
   .chip{flex:0 0 auto;background:var(--panel2);border:1px solid var(--border);color:var(--muted);padding:7px 13px;border-radius:999px;font-size:13px;cursor:pointer;white-space:nowrap}
   .chip.active{background:var(--accent);color:#07130a;border-color:var(--accent);font-weight:600}
-  .team-select{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:14px;margin-top:10px}
+  .league-chip.active{background:#3b82f6;border-color:#3b82f6;color:#fff}
+  .team-select{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:14px;margin-top:2px}
   main{padding:14px 16px 100px}
   .result-count{color:var(--muted);font-size:13px;margin:4px 0 12px}
   .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
@@ -33,6 +34,7 @@
   .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
   .card img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#0a0c10;display:block}
   .card-body{padding:10px 10px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .card-league{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);font-weight:700}
   .card-name{font-size:13px;font-weight:600;line-height:1.3;min-height:34px}
   .card-price{color:var(--accent);font-weight:700;font-size:15px}
   .card-tags{display:flex;flex-wrap:wrap;gap:4px}
@@ -83,6 +85,7 @@
 
 <div class="filters">
   <input type="search" id="searchInput" placeholder="Buscar equipo, seleccion, edicion...">
+  <div class="chip-row" id="leagueChips"></div>
   <div class="chip-row" id="tagChips"></div>
   <select class="team-select" id="teamSelect"><option value="">Todos los equipos/selecciones</option></select>
 </div>
@@ -92,7 +95,7 @@
   <div class="grid" id="grid"></div>
 </main>
 
-<footer>El Closet del Hincha - Catalogo de futbol - Pedidos por WhatsApp</footer>
+<footer>El Closet del Hincha - Futbol, NBA y F1 - Pedidos por WhatsApp</footer>
 
 <div class="overlay" id="overlay"></div>
 <div class="drawer" id="drawer">
@@ -121,17 +124,29 @@ var WHATSAPP_NUMBER = "584242132028";
 var PRODUCTS = [];
 var cart = JSON.parse(localStorage.getItem('cart_hincha') || '[]');
 var activeTag = '';
+var activeLeague = '';
 var pendingProduct = null, pendingSize = null;
 
 var TAGS = [
   {id:'', label:'Todos'}, {id:'local', label:'Local'}, {id:'visitante', label:'Visitante'},
   {id:'retro', label:'Retro'}, {id:'entrenamiento', label:'Entrenamiento'}, {id:'portero', label:'Portero'},
-  {id:'especial', label:'Especial/Conmemorativa'}, {id:'ninos', label:'Ninos'}, {id:'femenino', label:'Femenino'}
+  {id:'especial', label:'Especial'}, {id:'ninos', label:'Ninos'}, {id:'femenino', label:'Femenino'},
+  {id:'ciudad', label:'Edicion Ciudad'}
 ];
 
+function loadJSON(url) {
+  return fetch(url).then(function(res){ return res.ok ? res.json() : []; }).catch(function(){ return []; });
+}
+
 function init() {
-  fetch('data/productos-futbol.json').then(function(res){ return res.json(); }).then(function(data){
-    PRODUCTS = data.filter(function(p){ return p.active; });
+  Promise.all([
+    loadJSON('data/productos-futbol.json'),
+    loadJSON('data/productos-nba.json'),
+    loadJSON('data/productos-f1.json')
+  ]).then(function(results){
+    var all = results[0].concat(results[1], results[2]);
+    PRODUCTS = all.filter(function(p){ return p.active; });
+    renderLeagueChips();
     renderTagChips();
     renderTeamSelect();
     render();
@@ -144,6 +159,22 @@ function init() {
   document.getElementById('overlay').addEventListener('click', closeDrawer);
   document.getElementById('waBtn').addEventListener('click', sendWhatsApp);
   document.getElementById('modalConfirm').addEventListener('click', confirmAdd);
+}
+
+function renderLeagueChips() {
+  var leaguesSet = {};
+  PRODUCTS.forEach(function(p){ leaguesSet[p.league] = (leaguesSet[p.league]||0)+1; });
+  var leagues = Object.keys(leaguesSet).sort();
+  var row = document.getElementById('leagueChips');
+  var html = '<button class="chip league-chip ' + (activeLeague===''?'active':'') + '" data-league="">Todas las ligas</button>';
+  leagues.forEach(function(l){
+    html += '<button class="chip league-chip ' + (activeLeague===l?'active':'') + '" data-league="' + l + '">' + l + ' (' + leaguesSet[l] + ')</button>';
+  });
+  row.innerHTML = html;
+  row.querySelectorAll('.league-chip').forEach(function(el){ el.addEventListener('click', function(){
+    activeLeague = el.getAttribute('data-league');
+    renderLeagueChips(); renderTeamSelect(); render();
+  }); });
 }
 
 function renderTagChips() {
@@ -160,7 +191,7 @@ function renderTagChips() {
 
 function renderTeamSelect() {
   var teamsSet = {};
-  PRODUCTS.forEach(function(p){ if (p.team) teamsSet[p.team] = true; });
+  PRODUCTS.forEach(function(p){ if (p.team && (!activeLeague || p.league===activeLeague)) teamsSet[p.team] = true; });
   var teams = Object.keys(teamsSet).sort(function(a,b){ return a.localeCompare(b); });
   var sel = document.getElementById('teamSelect');
   var html = '<option value="">Todos los equipos/selecciones</option>';
@@ -172,6 +203,7 @@ function filteredProducts() {
   var q = document.getElementById('searchInput').value.trim().toLowerCase();
   var team = document.getElementById('teamSelect').value;
   return PRODUCTS.filter(function(p){
+    if (activeLeague && p.league !== activeLeague) return false;
     if (activeTag && p.tags.indexOf(activeTag) === -1) return false;
     if (team && p.team !== team) return false;
     if (q && p.name.toLowerCase().indexOf(q) === -1) return false;
@@ -187,13 +219,16 @@ function render() {
     grid.innerHTML = '<div class="empty" style="grid-column:1/-1">No encontramos productos con esos filtros.</div>';
     return;
   }
+  var maxShow = 300;
+  var shown = list.slice(0, maxShow);
   var html = '';
-  list.forEach(function(p){
+  shown.forEach(function(p){
     var tagsHtml = '';
     p.tags.slice(0,2).forEach(function(t){ tagsHtml += '<span class="tag">' + t + '</span>'; });
     html += '<div class="card">' +
       '<img src="' + p.image + '" alt="' + p.name + '" loading="lazy">' +
       '<div class="card-body">' +
+        '<div class="card-league">' + p.league + '</div>' +
         '<div class="card-name">' + p.name + '</div>' +
         '<div class="card-price">$' + p.price + '</div>' +
         '<div class="card-tags">' + tagsHtml + '</div>' +
@@ -201,6 +236,9 @@ function render() {
       '</div></div>';
   });
   grid.innerHTML = html;
+  if (list.length > maxShow) {
+    grid.insertAdjacentHTML('beforeend', '<div class="empty" style="grid-column:1/-1">Mostrando ' + maxShow + ' de ' + list.length + '. Afina la busqueda para ver mas.</div>');
+  }
   grid.querySelectorAll('.add-btn').forEach(function(btn){ btn.addEventListener('click', function(){ openSizeModal(btn.getAttribute('data-id')); }); });
 }
 
