@@ -12,21 +12,30 @@
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
   header{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-  header h1{font-size:18px;margin:0;white-space:nowrap}
+  .header-left{display:flex;align-items:center;gap:12px}
+  .burger-btn{background:var(--panel2);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;flex:0 0 auto}
+  .burger-btn span{display:block;width:18px;height:2px;background:var(--text);border-radius:2px}
+  header h1{font-size:17px;margin:0;white-space:nowrap}
   header h1 span{color:var(--accent)}
-  .cart-btn{position:relative;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:6px}
+  .cart-btn{position:relative;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:6px;flex:0 0 auto}
   .cart-count{background:var(--accent);color:#07130a;border-radius:999px;font-size:12px;font-weight:700;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;padding:0 5px}
-  .filters{padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:53px;z-index:19}
-  .sport-row{display:flex;gap:8px;margin-bottom:10px}
+
+  .toolbar{padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .active-filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .active-chip{background:var(--panel2);border:1px solid var(--accent);color:var(--accent);padding:5px 10px;border-radius:999px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .active-chip button{background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;padding:0;line-height:1}
+  .filters-open-btn{background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap}
+
+  .sport-row{display:flex;gap:8px;margin-bottom:14px}
   .sport-btn{flex:1;padding:11px 6px;border-radius:10px;border:2px solid var(--border);background:var(--panel2);color:var(--muted);font-size:14px;font-weight:700;cursor:pointer;text-align:center}
   .sport-btn.active{border-color:var(--accent);background:rgba(34,197,94,.12);color:var(--accent)}
-  .filters input[type=search]{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:15px;margin-bottom:10px}
-  .filters input[type=search]::placeholder{color:var(--muted)}
-  .chip-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;margin-bottom:8px}
-  .chip-row::-webkit-scrollbar{display:none}
+  .side-filters input[type=search]{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:15px;margin-bottom:14px}
+  .side-filters input[type=search]::placeholder{color:var(--muted)}
+  .filter-label{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin:0 0 8px}
+  .chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
   .chip{flex:0 0 auto;background:var(--panel2);border:1px solid var(--border);color:var(--muted);padding:7px 13px;border-radius:999px;font-size:13px;cursor:pointer;white-space:nowrap}
   .chip.active{background:var(--accent);color:#07130a;border-color:var(--accent);font-weight:600}
-  .team-select{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:14px;margin-top:2px}
+  .team-select{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:14px}
   main{padding:14px 16px 100px}
   .result-count{color:var(--muted);font-size:13px;margin:4px 0 12px}
   .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
@@ -65,6 +74,13 @@
   .total-row{display:flex;justify-content:space-between;font-size:16px;font-weight:700;margin-bottom:12px}
   .wa-btn{width:100%;background:#25D366;color:#07130a;border:none;padding:13px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
   .wa-btn:disabled{opacity:.5;cursor:not-allowed}
+
+  .side-drawer{position:fixed;top:0;left:0;bottom:0;width:100%;max-width:340px;background:var(--panel);z-index:30;transform:translateX(-100%);transition:transform .25s ease;display:flex;flex-direction:column;border-right:1px solid var(--border)}
+  .side-drawer.show{transform:translateX(0)}
+  .side-filters{flex:1;overflow-y:auto;padding:16px}
+  .side-drawer .drawer-foot{padding:16px;border-top:1px solid var(--border)}
+  .apply-btn{width:100%;background:var(--accent);color:#07130a;border:none;padding:13px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer}
+
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:39;display:none;align-items:flex-end;justify-content:center}
   .modal-overlay.show{display:flex}
   .modal{background:var(--panel);width:100%;max-width:460px;border-radius:16px 16px 0 0;padding:18px;max-height:88vh;overflow-y:auto}
@@ -125,15 +141,31 @@
 </div>
 
 <header>
-  <h1>El Closet <span>del Hincha</span></h1>
+  <div class="header-left">
+    <button class="burger-btn" id="burgerBtn" aria-label="Filtros"><span></span><span></span><span></span></button>
+    <h1>El Closet <span>del Hincha</span></h1>
+  </div>
   <button class="cart-btn" id="cartBtn">Carrito <span class="cart-count" id="cartCount">0</span></button>
 </header>
 
-<div class="filters">
-  <div class="sport-row" id="sportRow"></div>
-  <input type="search" id="searchInput" placeholder="Buscar equipo, seleccion, edicion...">
-  <div class="chip-row" id="tagChips"></div>
-  <select class="team-select" id="teamSelect"><option value="">Todos los equipos/selecciones</option></select>
+<div class="toolbar">
+  <div class="active-filters" id="activeFilters"></div>
+  <button class="filters-open-btn" id="filtersOpenBtn2">Filtros</button>
+</div>
+
+<div class="overlay" id="sideOverlay"></div>
+<div class="side-drawer" id="sideDrawer">
+  <div class="drawer-head"><h2>Filtros</h2><button class="drawer-close" id="sideClose">X</button></div>
+  <div class="side-filters">
+    <div class="filter-label">Deporte</div>
+    <div class="sport-row" id="sportRow"></div>
+    <input type="search" id="searchInput" placeholder="Buscar equipo, seleccion, edicion...">
+    <div class="filter-label">Categoria</div>
+    <div class="chip-row" id="tagChips"></div>
+    <div class="filter-label">Equipo / Seleccion</div>
+    <select class="team-select" id="teamSelect"><option value="">Todos los equipos/selecciones</option></select>
+  </div>
+  <div class="drawer-foot"><button class="apply-btn" id="applyFiltersBtn">Ver resultados</button></div>
 </div>
 
 <main>
@@ -234,8 +266,16 @@ function init() {
   document.getElementById('overlay').addEventListener('click', closeDrawer);
   document.getElementById('waBtn').addEventListener('click', sendWhatsApp);
   document.getElementById('modalConfirm').addEventListener('click', confirmAdd);
+  document.getElementById('burgerBtn').addEventListener('click', openSideDrawer);
+  document.getElementById('filtersOpenBtn2').addEventListener('click', openSideDrawer);
+  document.getElementById('sideClose').addEventListener('click', closeSideDrawer);
+  document.getElementById('sideOverlay').addEventListener('click', closeSideDrawer);
+  document.getElementById('applyFiltersBtn').addEventListener('click', closeSideDrawer);
   initWelcome();
 }
+
+function openSideDrawer() { document.getElementById('sideDrawer').classList.add('show'); document.getElementById('sideOverlay').classList.add('show'); }
+function closeSideDrawer() { document.getElementById('sideDrawer').classList.remove('show'); document.getElementById('sideOverlay').classList.remove('show'); }
 
 function initWelcome() {
   var overlay = document.getElementById('welcomeOverlay');
@@ -378,6 +418,29 @@ function renderTeamSelect() {
   if (current && teams.indexOf(current) !== -1) sel.value = current;
 }
 
+function renderActiveFilters() {
+  var box = document.getElementById('activeFilters');
+  var chips = [];
+  if (activeLeague) chips.push({label: activeLeague, clear: function(){ activeLeague=''; renderSportRow(); renderTagChips(); renderTeamSelect(); render(); renderActiveFilters(); }});
+  var team = document.getElementById('teamSelect').value;
+  if (team) chips.push({label: team, clear: function(){ document.getElementById('teamSelect').value=''; render(); renderActiveFilters(); }});
+  if (activeTag) {
+    var tagObj = (TAGS_BY_LEAGUE[activeLeague]||TAGS_BY_LEAGUE['']).find(function(t){return t.id===activeTag;});
+    chips.push({label: tagObj ? tagObj.label : activeTag, clear: function(){ activeTag=''; renderTagChips(); render(); renderActiveFilters(); }});
+  }
+  var q = document.getElementById('searchInput').value.trim();
+  if (q) chips.push({label: '"' + q + '"', clear: function(){ document.getElementById('searchInput').value=''; render(); renderActiveFilters(); }});
+  if (chips.length === 0) { box.innerHTML = '<span style="color:var(--muted);font-size:13px">Sin filtros activos</span>'; return; }
+  box.innerHTML = '';
+  chips.forEach(function(c, i){
+    var el = document.createElement('span');
+    el.className = 'active-chip';
+    el.innerHTML = c.label + ' <button aria-label="Quitar">&times;</button>';
+    el.querySelector('button').addEventListener('click', c.clear);
+    box.appendChild(el);
+  });
+}
+
 function filteredProducts() {
   var q = document.getElementById('searchInput').value.trim().toLowerCase();
   var team = document.getElementById('teamSelect').value;
@@ -391,6 +454,7 @@ function filteredProducts() {
 }
 
 function render() {
+  renderActiveFilters();
   var list = filteredProducts();
   document.getElementById('resultCount').textContent = list.length + ' producto' + (list.length===1?'':'s');
   var grid = document.getElementById('grid');
