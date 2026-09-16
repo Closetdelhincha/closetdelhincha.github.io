@@ -80,9 +80,9 @@
   .toast.show{opacity:1}
   footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
 
-  .welcome-overlay{position:fixed;inset:0;background:radial-gradient(circle at 50% 20%, #1a2332, #0a0c10 70%);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;opacity:1;transition:opacity .35s ease}
+  .welcome-overlay{position:fixed;inset:0;background:radial-gradient(circle at 50% 20%, #1a2332, #0a0c10 70%);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;opacity:1;transition:opacity .35s ease;overflow-y:auto}
   .welcome-overlay.hide{opacity:0;pointer-events:none}
-  .welcome-card{max-width:460px;width:100%;text-align:center;animation:welcomeIn .6s cubic-bezier(.2,.9,.3,1.2)}
+  .welcome-card{max-width:460px;width:100%;text-align:center;animation:welcomeIn .6s cubic-bezier(.2,.9,.3,1.2);margin:auto}
   @keyframes welcomeIn{from{opacity:0;transform:translateY(24px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
   .welcome-emoji{font-size:56px;margin-bottom:6px;animation:bounce 2.2s ease-in-out infinite}
   @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
@@ -96,13 +96,18 @@
   .welcome-btn.primary{background:var(--accent);color:#07130a;border-color:var(--accent)}
   .welcome-btn.secondary{color:var(--text)}
   .welcome-btn.secondary:hover{border-color:var(--accent)}
-  .club-picker{max-width:460px;width:100%}
+  .sport-pick-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+  .sport-pick-btn{padding:20px 10px;border-radius:14px;border:2px solid var(--border);background:var(--panel2);color:var(--text);font-size:16px;font-weight:800;cursor:pointer}
+  .sport-pick-btn:active{transform:scale(.97)}
+  .sport-pick-btn.other{grid-column:1/-1;background:var(--panel);color:var(--muted);font-size:13px;font-weight:600;padding:14px}
+  .club-picker{max-width:460px;width:100%;margin:auto}
   .club-picker input[type=search]{width:100%;padding:13px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:16px;margin-bottom:12px}
   .club-list{max-height:320px;overflow-y:auto;text-align:left;border:1px solid var(--border);border-radius:12px;background:var(--panel)}
   .club-item{padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;font-size:14px}
   .club-item:last-child{border-bottom:none}
   .club-item:hover{background:var(--panel2)}
   .club-back{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;margin-bottom:14px;padding:0}
+  .other-sport-box textarea{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:14px;min-height:90px;font-family:inherit;margin-bottom:14px}
 </style>
 </head>
 <body>
@@ -236,12 +241,17 @@ function initWelcome() {
   var overlay = document.getElementById('welcomeOverlay');
   var step = document.getElementById('welcomeStep');
   document.getElementById('btnEnterCloset').addEventListener('click', function(){
-    overlay.classList.add('hide');
-    setTimeout(function(){ overlay.style.display='none'; }, 400);
+    closeWelcome();
   });
   document.getElementById('btnKnowClub').addEventListener('click', function(){
-    showClubPicker(step);
+    showSportPicker(step);
   });
+}
+
+function closeWelcome() {
+  var overlay = document.getElementById('welcomeOverlay');
+  overlay.classList.add('hide');
+  setTimeout(function(){ overlay.style.display='none'; }, 400);
 }
 
 function waitForData(cb) {
@@ -249,14 +259,33 @@ function waitForData(cb) {
   var iv = setInterval(function(){ if (dataLoaded) { clearInterval(iv); cb(); } }, 100);
 }
 
-function showClubPicker(step) {
+function showSportPicker(step) {
+  var html = '<div class="welcome-title" style="font-size:20px;margin-bottom:16px">Que deporte buscas?</div>' +
+    '<div class="sport-pick-row">' +
+      '<button class="sport-pick-btn" data-sport="Fútbol">Futbol</button>' +
+      '<button class="sport-pick-btn" data-sport="NBA">NBA</button>' +
+      '<button class="sport-pick-btn" data-sport="F1">F1</button>' +
+      '<button class="sport-pick-btn other" data-sport="otro">Busco otro deporte (Beisbol, Rugby, NHL...)</button>' +
+    '</div>';
+  step.className = 'welcome-card';
+  step.innerHTML = html;
+  step.querySelectorAll('.sport-pick-btn').forEach(function(el){
+    el.addEventListener('click', function(){
+      var sport = el.getAttribute('data-sport');
+      if (sport === 'otro') showOtherSportRequest(step);
+      else showClubPicker(step, sport);
+    });
+  });
+}
+
+function showClubPicker(step, league) {
   waitForData(function(){
     var teamsSet = {};
-    PRODUCTS.forEach(function(p){ if (p.team) teamsSet[p.team] = true; });
+    PRODUCTS.forEach(function(p){ if (p.team && p.league === league) teamsSet[p.team] = true; });
     var teams = Object.keys(teamsSet).sort(function(a,b){ return a.localeCompare(b); });
     var html = '<button class="club-back" id="clubBack">&larr; Volver</button>' +
-      '<div class="welcome-title" style="font-size:20px;margin-bottom:14px">Cual es tu club?</div>' +
-      '<input type="search" id="clubSearch" placeholder="Escribi el nombre del equipo...">' +
+      '<div class="welcome-title" style="font-size:20px;margin-bottom:14px">Cual es tu club o equipo?</div>' +
+      '<input type="search" id="clubSearch" placeholder="Escribi el nombre...">' +
       '<div class="club-list" id="clubList"></div>';
     step.className = 'club-picker';
     step.innerHTML = html;
@@ -267,24 +296,46 @@ function showClubPicker(step) {
       listEl.innerHTML = matched.map(function(t){ return '<div class="club-item" data-team="' + t + '">' + t + '</div>'; }).join('') || '<div class="club-item">Sin resultados</div>';
       listEl.querySelectorAll('.club-item[data-team]').forEach(function(el){
         el.addEventListener('click', function(){
-          selectClub(el.getAttribute('data-team'));
+          selectClub(el.getAttribute('data-team'), league);
         });
       });
     }
     renderList('');
     document.getElementById('clubSearch').addEventListener('input', function(e){ renderList(e.target.value); });
     document.getElementById('clubBack').addEventListener('click', function(){
-      location.reload();
+      showSportPicker(step);
     });
   });
 }
 
-function selectClub(team) {
-  document.getElementById('teamSelect').value = team;
-  render();
-  var overlay = document.getElementById('welcomeOverlay');
-  overlay.classList.add('hide');
-  setTimeout(function(){ overlay.style.display='none'; }, 400);
+function showOtherSportRequest(step) {
+  var html = '<button class="club-back" id="otherBack">&larr; Volver</button>' +
+    '<div class="welcome-emoji" style="font-size:40px">&#128172;</div>' +
+    '<div class="welcome-title" style="font-size:20px;margin-bottom:8px">Contanos que buscas</div>' +
+    '<p class="welcome-text" style="margin-bottom:14px">Beisbol, Rugby, NHL u otro deporte que no este en el catalogo. Te respondemos por WhatsApp.</p>' +
+    '<div class="other-sport-box"><textarea id="otherSportText" placeholder="Ej: Busco una camiseta de los Yankees de beisbol talla L"></textarea></div>' +
+    '<button class="welcome-btn primary" id="otherSportSend">Enviar consulta por WhatsApp</button>';
+  step.className = 'welcome-card';
+  step.innerHTML = html;
+  document.getElementById('otherBack').addEventListener('click', function(){ showSportPicker(step); });
+  document.getElementById('otherSportSend').addEventListener('click', function(){
+    var text = document.getElementById('otherSportText').value.trim();
+    var msg = 'Hola! Estoy buscando algo que no vi en el catalogo de El Closet del Hincha:\n\n' + (text || '(sin detalle especificado)');
+    var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
+    window.open(url, '_blank');
+  });
+}
+
+function selectClub(team, league) {
+  activeLeague = league;
+  waitForData(function(){
+    renderSportRow();
+    renderTagChips();
+    renderTeamSelect();
+    document.getElementById('teamSelect').value = team;
+    render();
+  });
+  closeWelcome();
 }
 
 function renderSportRow() {
