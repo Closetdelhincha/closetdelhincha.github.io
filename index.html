@@ -17,13 +17,15 @@
   .cart-btn{position:relative;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:6px}
   .cart-count{background:var(--accent);color:#07130a;border-radius:999px;font-size:12px;font-weight:700;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;padding:0 5px}
   .filters{padding:12px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:53px;z-index:19}
+  .sport-row{display:flex;gap:8px;margin-bottom:10px}
+  .sport-btn{flex:1;padding:11px 6px;border-radius:10px;border:2px solid var(--border);background:var(--panel2);color:var(--muted);font-size:14px;font-weight:700;cursor:pointer;text-align:center}
+  .sport-btn.active{border-color:var(--accent);background:rgba(34,197,94,.12);color:var(--accent)}
   .filters input[type=search]{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:15px;margin-bottom:10px}
   .filters input[type=search]::placeholder{color:var(--muted)}
   .chip-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;margin-bottom:8px}
   .chip-row::-webkit-scrollbar{display:none}
   .chip{flex:0 0 auto;background:var(--panel2);border:1px solid var(--border);color:var(--muted);padding:7px 13px;border-radius:999px;font-size:13px;cursor:pointer;white-space:nowrap}
   .chip.active{background:var(--accent);color:#07130a;border-color:var(--accent);font-weight:600}
-  .league-chip.active{background:#3b82f6;border-color:#3b82f6;color:#fff}
   .team-select{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:14px;margin-top:2px}
   main{padding:14px 16px 100px}
   .result-count{color:var(--muted);font-size:13px;margin:4px 0 12px}
@@ -84,8 +86,8 @@
 </header>
 
 <div class="filters">
+  <div class="sport-row" id="sportRow"></div>
   <input type="search" id="searchInput" placeholder="Buscar equipo, seleccion, edicion...">
-  <div class="chip-row" id="leagueChips"></div>
   <div class="chip-row" id="tagChips"></div>
   <select class="team-select" id="teamSelect"><option value="">Todos los equipos/selecciones</option></select>
 </div>
@@ -127,12 +129,25 @@ var activeTag = '';
 var activeLeague = '';
 var pendingProduct = null, pendingSize = null;
 
-var TAGS = [
-  {id:'', label:'Todos'}, {id:'local', label:'Local'}, {id:'visitante', label:'Visitante'},
-  {id:'retro', label:'Retro'}, {id:'entrenamiento', label:'Entrenamiento'}, {id:'portero', label:'Portero'},
-  {id:'especial', label:'Especial'}, {id:'ninos', label:'Ninos'}, {id:'femenino', label:'Femenino'},
-  {id:'ciudad', label:'Edicion Ciudad'}
-];
+var TAGS_BY_LEAGUE = {
+  '': [{id:'', label:'Todos'}],
+  'Fútbol': [
+    {id:'', label:'Todos'}, {id:'local', label:'Local'}, {id:'visitante', label:'Visitante'},
+    {id:'retro', label:'Retro'}, {id:'jugador', label:'Version Jugador'}, {id:'fan', label:'Version Fan'},
+    {id:'entrenamiento', label:'Entrenamiento'}, {id:'portero', label:'Portero'},
+    {id:'especial', label:'Especial'}, {id:'ninos', label:'Ninos'}, {id:'femenino', label:'Femenino'}
+  ],
+  'NBA': [
+    {id:'', label:'Todos'}, {id:'ciudad', label:'Edicion Ciudad'}, {id:'declaracion', label:'Declaracion'},
+    {id:'asociacion', label:'Asociacion'}, {id:'retro', label:'Retro'}, {id:'ninos', label:'Ninos'},
+    {id:'femenino', label:'Femenino'}, {id:'allstar', label:'All-Star'}
+  ],
+  'F1': [
+    {id:'', label:'Todos'}, {id:'polo', label:'Polo'}, {id:'cuello-redondo', label:'Cuello Redondo'},
+    {id:'sudadera', label:'Sudadera'}, {id:'chaqueta', label:'Chaqueta'}, {id:'traje-de-carreras', label:'Traje de Carreras'},
+    {id:'ninos', label:'Ninos'}, {id:'femenino', label:'Femenino'}
+  ]
+};
 
 function loadJSON(url) {
   return fetch(url).then(function(res){ return res.ok ? res.json() : []; }).catch(function(){ return []; });
@@ -141,12 +156,17 @@ function loadJSON(url) {
 function init() {
   Promise.all([
     loadJSON('data/productos-futbol.json'),
+    loadJSON('data/productos-futbol-retro.json'),
+    loadJSON('data/productos-futbol-jugador.json'),
+    loadJSON('data/productos-futbol-ninos.json'),
+    loadJSON('data/productos-futbol-fan.json'),
     loadJSON('data/productos-nba.json'),
     loadJSON('data/productos-f1.json')
   ]).then(function(results){
-    var all = results[0].concat(results[1], results[2]);
+    var all = [];
+    results.forEach(function(r){ all = all.concat(r); });
     PRODUCTS = all.filter(function(p){ return p.active; });
-    renderLeagueChips();
+    renderSportRow();
     renderTagChips();
     renderTeamSelect();
     render();
@@ -161,32 +181,32 @@ function init() {
   document.getElementById('modalConfirm').addEventListener('click', confirmAdd);
 }
 
-function renderLeagueChips() {
+function renderSportRow() {
   var leaguesSet = {};
   PRODUCTS.forEach(function(p){ leaguesSet[p.league] = (leaguesSet[p.league]||0)+1; });
   var leagues = Object.keys(leaguesSet).sort();
-  var row = document.getElementById('leagueChips');
-  var html = '<button class="chip league-chip ' + (activeLeague===''?'active':'') + '" data-league="">Todas las ligas</button>';
+  var row = document.getElementById('sportRow');
+  var html = '<button class="sport-btn ' + (activeLeague===''?'active':'') + '" data-league="">TODOS</button>';
   leagues.forEach(function(l){
-    html += '<button class="chip league-chip ' + (activeLeague===l?'active':'') + '" data-league="' + l + '">' + l + ' (' + leaguesSet[l] + ')</button>';
+    html += '<button class="sport-btn ' + (activeLeague===l?'active':'') + '" data-league="' + l + '">' + l.toUpperCase() + '</button>';
   });
   row.innerHTML = html;
-  row.querySelectorAll('.league-chip').forEach(function(el){ el.addEventListener('click', function(){
+  row.querySelectorAll('.sport-btn').forEach(function(el){ el.addEventListener('click', function(){
     activeLeague = el.getAttribute('data-league');
-    renderLeagueChips(); renderTeamSelect(); render();
+    activeTag = '';
+    renderSportRow(); renderTagChips(); renderTeamSelect(); render();
   }); });
 }
 
 function renderTagChips() {
   var row = document.getElementById('tagChips');
+  var tags = TAGS_BY_LEAGUE[activeLeague] || TAGS_BY_LEAGUE[''];
   var html = '';
-  for (var i=0;i<TAGS.length;i++) {
-    var t = TAGS[i];
+  tags.forEach(function(t){
     html += '<button class="chip ' + (t.id===activeTag?'active':'') + '" data-tag="' + t.id + '">' + t.label + '</button>';
-  }
+  });
   row.innerHTML = html;
-  var chips = row.querySelectorAll('.chip');
-  chips.forEach(function(el){ el.addEventListener('click', function(){ activeTag = el.getAttribute('data-tag'); renderTagChips(); render(); }); });
+  row.querySelectorAll('.chip').forEach(function(el){ el.addEventListener('click', function(){ activeTag = el.getAttribute('data-tag'); renderTagChips(); render(); }); });
 }
 
 function renderTeamSelect() {
