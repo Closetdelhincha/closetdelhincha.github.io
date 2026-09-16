@@ -56,7 +56,7 @@
   .cart-item img{width:56px;height:56px;border-radius:8px;object-fit:cover;flex:0 0 auto}
   .cart-item-info{flex:1;min-width:0}
   .cart-item-name{font-size:13px;font-weight:600}
-  .cart-item-meta{font-size:12px;color:var(--muted);margin-top:2px}
+  .cart-item-meta{font-size:12px;color:var(--muted);margin-top:2px;white-space:pre-line}
   .cart-item-remove{background:none;border:none;color:var(--danger);font-size:12px;cursor:pointer;padding:0;margin-top:4px}
   .qty-ctl{display:flex;align-items:center;gap:8px;margin-top:6px}
   .qty-ctl button{width:24px;height:24px;border-radius:6px;border:1px solid var(--border);background:var(--panel2);color:var(--text);cursor:pointer}
@@ -67,18 +67,57 @@
   .wa-btn:disabled{opacity:.5;cursor:not-allowed}
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:39;display:none;align-items:flex-end;justify-content:center}
   .modal-overlay.show{display:flex}
-  .modal{background:var(--panel);width:100%;max-width:420px;border-radius:16px 16px 0 0;padding:18px}
+  .modal{background:var(--panel);width:100%;max-width:460px;border-radius:16px 16px 0 0;padding:18px;max-height:88vh;overflow-y:auto}
   .modal h3{margin:0 0 12px;font-size:16px}
   .size-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
   .size-btn{padding:9px 16px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);color:var(--text);cursor:pointer;font-size:14px}
   .size-btn.sel{background:var(--accent);color:#07130a;border-color:var(--accent);font-weight:700}
-  .modal-confirm{width:100%;background:var(--accent);color:#07130a;border:none;padding:12px;border-radius:10px;font-weight:700;cursor:pointer}
+  .field-label{font-size:12px;color:var(--muted);margin:14px 0 6px;font-weight:600}
+  .modal input[type=text], .modal textarea{width:100%;padding:11px 12px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:14px;font-family:inherit}
+  .modal textarea{min-height:60px;resize:vertical}
+  .modal-confirm{width:100%;background:var(--accent);color:#07130a;border:none;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;margin-top:16px}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:#07130a;padding:10px 18px;border-radius:10px;font-weight:600;font-size:14px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
   .toast.show{opacity:1}
   footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+
+  .welcome-overlay{position:fixed;inset:0;background:radial-gradient(circle at 50% 20%, #1a2332, #0a0c10 70%);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;opacity:1;transition:opacity .35s ease}
+  .welcome-overlay.hide{opacity:0;pointer-events:none}
+  .welcome-card{max-width:460px;width:100%;text-align:center;animation:welcomeIn .6s cubic-bezier(.2,.9,.3,1.2)}
+  @keyframes welcomeIn{from{opacity:0;transform:translateY(24px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+  .welcome-emoji{font-size:56px;margin-bottom:6px;animation:bounce 2.2s ease-in-out infinite}
+  @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  .welcome-title{font-size:26px;font-weight:800;margin:6px 0 4px}
+  .welcome-title span{color:var(--accent)}
+  .welcome-text{color:var(--muted);font-size:15px;line-height:1.5;margin:0 0 26px}
+  .welcome-text b{color:var(--text)}
+  .welcome-btns{display:flex;flex-direction:column;gap:12px}
+  .welcome-btn{padding:15px;border-radius:12px;border:2px solid var(--border);background:var(--panel2);color:var(--text);font-size:15px;font-weight:700;cursor:pointer;transition:transform .15s,border-color .15s}
+  .welcome-btn:active{transform:scale(.97)}
+  .welcome-btn.primary{background:var(--accent);color:#07130a;border-color:var(--accent)}
+  .welcome-btn.secondary{color:var(--text)}
+  .welcome-btn.secondary:hover{border-color:var(--accent)}
+  .club-picker{max-width:460px;width:100%}
+  .club-picker input[type=search]{width:100%;padding:13px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:16px;margin-bottom:12px}
+  .club-list{max-height:320px;overflow-y:auto;text-align:left;border:1px solid var(--border);border-radius:12px;background:var(--panel)}
+  .club-item{padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;font-size:14px}
+  .club-item:last-child{border-bottom:none}
+  .club-item:hover{background:var(--panel2)}
+  .club-back{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;margin-bottom:14px;padding:0}
 </style>
 </head>
 <body>
+
+<div class="welcome-overlay" id="welcomeOverlay">
+  <div class="welcome-card" id="welcomeStep">
+    <div class="welcome-emoji">&#128085;</div>
+    <div class="welcome-title">Bienvenido a <span>El Closet del Hincha</span></div>
+    <p class="welcome-text">A traves de esta pagina tenes acceso a <b>mas de 6.000 camisetas</b> de Futbol, NBA y F1.<br><br>Ya sabes que estas buscando, o preferis entrar al closet y explorar?</p>
+    <div class="welcome-btns">
+      <button class="welcome-btn primary" id="btnKnowClub">Ya se lo que busco</button>
+      <button class="welcome-btn secondary" id="btnEnterCloset">Entrar al closet</button>
+    </div>
+  </div>
+</div>
 
 <header>
   <h1>El Closet <span>del Hincha</span></h1>
@@ -113,8 +152,17 @@
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
-    <h3 id="modalTitle">Elegi tu talla</h3>
+    <h3 id="modalTitle">Personaliza tu camiseta</h3>
+    <div class="field-label">Talla</div>
     <div class="size-row" id="sizeRow"></div>
+    <div class="field-label">Nombre para la camiseta (opcional)</div>
+    <input type="text" id="fieldName" placeholder="Ej: MESSI">
+    <div class="field-label">Numero (opcional)</div>
+    <input type="text" id="fieldNumber" placeholder="Ej: 10" maxlength="3">
+    <div class="field-label">Parches (opcional)</div>
+    <input type="text" id="fieldPatches" placeholder="Ej: Champions League, LaLiga">
+    <div class="field-label">Notas adicionales (opcional)</div>
+    <textarea id="fieldNotes" placeholder="Cualquier otro detalle para tu pedido..."></textarea>
     <button class="modal-confirm" id="modalConfirm">Agregar al carrito</button>
   </div>
 </div>
@@ -128,6 +176,7 @@ var cart = JSON.parse(localStorage.getItem('cart_hincha') || '[]');
 var activeTag = '';
 var activeLeague = '';
 var pendingProduct = null, pendingSize = null;
+var dataLoaded = false;
 
 var TAGS_BY_LEAGUE = {
   '': [{id:'', label:'Todos'}],
@@ -166,6 +215,7 @@ function init() {
     var all = [];
     results.forEach(function(r){ all = all.concat(r); });
     PRODUCTS = all.filter(function(p){ return p.active; });
+    dataLoaded = true;
     renderSportRow();
     renderTagChips();
     renderTeamSelect();
@@ -179,6 +229,62 @@ function init() {
   document.getElementById('overlay').addEventListener('click', closeDrawer);
   document.getElementById('waBtn').addEventListener('click', sendWhatsApp);
   document.getElementById('modalConfirm').addEventListener('click', confirmAdd);
+  initWelcome();
+}
+
+function initWelcome() {
+  var overlay = document.getElementById('welcomeOverlay');
+  var step = document.getElementById('welcomeStep');
+  document.getElementById('btnEnterCloset').addEventListener('click', function(){
+    overlay.classList.add('hide');
+    setTimeout(function(){ overlay.style.display='none'; }, 400);
+  });
+  document.getElementById('btnKnowClub').addEventListener('click', function(){
+    showClubPicker(step);
+  });
+}
+
+function waitForData(cb) {
+  if (dataLoaded) { cb(); return; }
+  var iv = setInterval(function(){ if (dataLoaded) { clearInterval(iv); cb(); } }, 100);
+}
+
+function showClubPicker(step) {
+  waitForData(function(){
+    var teamsSet = {};
+    PRODUCTS.forEach(function(p){ if (p.team) teamsSet[p.team] = true; });
+    var teams = Object.keys(teamsSet).sort(function(a,b){ return a.localeCompare(b); });
+    var html = '<button class="club-back" id="clubBack">&larr; Volver</button>' +
+      '<div class="welcome-title" style="font-size:20px;margin-bottom:14px">Cual es tu club?</div>' +
+      '<input type="search" id="clubSearch" placeholder="Escribi el nombre del equipo...">' +
+      '<div class="club-list" id="clubList"></div>';
+    step.className = 'club-picker';
+    step.innerHTML = html;
+    var listEl = document.getElementById('clubList');
+    function renderList(filter) {
+      var f = (filter||'').toLowerCase();
+      var matched = teams.filter(function(t){ return t.toLowerCase().indexOf(f) !== -1; }).slice(0,60);
+      listEl.innerHTML = matched.map(function(t){ return '<div class="club-item" data-team="' + t + '">' + t + '</div>'; }).join('') || '<div class="club-item">Sin resultados</div>';
+      listEl.querySelectorAll('.club-item[data-team]').forEach(function(el){
+        el.addEventListener('click', function(){
+          selectClub(el.getAttribute('data-team'));
+        });
+      });
+    }
+    renderList('');
+    document.getElementById('clubSearch').addEventListener('input', function(e){ renderList(e.target.value); });
+    document.getElementById('clubBack').addEventListener('click', function(){
+      location.reload();
+    });
+  });
+}
+
+function selectClub(team) {
+  document.getElementById('teamSelect').value = team;
+  render();
+  var overlay = document.getElementById('welcomeOverlay');
+  overlay.classList.add('hide');
+  setTimeout(function(){ overlay.style.display='none'; }, 400);
 }
 
 function renderSportRow() {
@@ -214,9 +320,11 @@ function renderTeamSelect() {
   PRODUCTS.forEach(function(p){ if (p.team && (!activeLeague || p.league===activeLeague)) teamsSet[p.team] = true; });
   var teams = Object.keys(teamsSet).sort(function(a,b){ return a.localeCompare(b); });
   var sel = document.getElementById('teamSelect');
+  var current = sel.value;
   var html = '<option value="">Todos los equipos/selecciones</option>';
   teams.forEach(function(t){ html += '<option value="' + t + '">' + t + '</option>'; });
   sel.innerHTML = html;
+  if (current && teams.indexOf(current) !== -1) sel.value = current;
 }
 
 function filteredProducts() {
@@ -266,9 +374,17 @@ function openSizeModal(id) {
   pendingProduct = PRODUCTS.find(function(p){ return p.id === id; });
   pendingSize = null;
   document.getElementById('modalTitle').textContent = pendingProduct.name;
+  document.getElementById('fieldName').value = '';
+  document.getElementById('fieldNumber').value = '';
+  document.getElementById('fieldPatches').value = '';
+  document.getElementById('fieldNotes').value = '';
   var row = document.getElementById('sizeRow');
   var html = '';
-  pendingProduct.sizes.forEach(function(s){ html += '<button class="size-btn" data-size="' + s + '">' + s + '</button>'; });
+  var sizeLabels = { '2XL': 'XXL' };
+  pendingProduct.sizes.forEach(function(s){
+    var label = sizeLabels[s] || s;
+    html += '<button class="size-btn" data-size="' + s + '">' + label + '</button>';
+  });
   row.innerHTML = html;
   row.querySelectorAll('.size-btn').forEach(function(b){
     b.addEventListener('click', function(){
@@ -282,16 +398,35 @@ function openSizeModal(id) {
 
 function confirmAdd() {
   if (!pendingSize) { showToast('Elegi una talla'); return; }
+  var customName = document.getElementById('fieldName').value.trim();
+  var customNumber = document.getElementById('fieldNumber').value.trim();
+  var patches = document.getElementById('fieldPatches').value.trim();
+  var notes = document.getElementById('fieldNotes').value.trim();
   var existing = null;
-  for (var i=0;i<cart.length;i++) { if (cart[i].id === pendingProduct.id && cart[i].size === pendingSize) { existing = cart[i]; break; } }
+  for (var i=0;i<cart.length;i++) {
+    var c = cart[i];
+    if (c.id === pendingProduct.id && c.size === pendingSize && c.customName === customName && c.customNumber === customNumber && c.patches === patches && c.notes === notes) { existing = c; break; }
+  }
   if (existing) existing.qty++;
-  else cart.push({id: pendingProduct.id, name: pendingProduct.name, image: pendingProduct.image, price: pendingProduct.price, size: pendingSize, qty: 1});
+  else cart.push({
+    id: pendingProduct.id, name: pendingProduct.name, image: pendingProduct.image, price: pendingProduct.price,
+    size: pendingSize, qty: 1, customName: customName, customNumber: customNumber, patches: patches, notes: notes
+  });
   saveCart();
   document.getElementById('modalOverlay').classList.remove('show');
   showToast('Agregado al carrito');
 }
 
 function saveCart() { localStorage.setItem('cart_hincha', JSON.stringify(cart)); updateCartUI(); }
+
+function cartItemMeta(c) {
+  var parts = ['Talla ' + c.size + ' - $' + c.price + ' c/u'];
+  if (c.customName) parts.push('Nombre: ' + c.customName);
+  if (c.customNumber) parts.push('Numero: ' + c.customNumber);
+  if (c.patches) parts.push('Parches: ' + c.patches);
+  if (c.notes) parts.push('Notas: ' + c.notes);
+  return parts.join('\n');
+}
 
 function updateCartUI() {
   var count = 0; cart.forEach(function(c){ count += c.qty; });
@@ -306,7 +441,7 @@ function updateCartUI() {
         '<img src="' + c.image + '" alt="">' +
         '<div class="cart-item-info">' +
           '<div class="cart-item-name">' + c.name + '</div>' +
-          '<div class="cart-item-meta">Talla ' + c.size + ' - $' + c.price + ' c/u</div>' +
+          '<div class="cart-item-meta">' + cartItemMeta(c) + '</div>' +
           '<div class="qty-ctl">' +
             '<button data-i="' + i + '" data-d="-1">-</button>' +
             '<span>' + c.qty + '</span>' +
@@ -343,6 +478,10 @@ function sendWhatsApp() {
   var total = 0;
   cart.forEach(function(c){
     msg += '- ' + c.name + ' - Talla ' + c.size + ' x' + c.qty + ' - $' + (c.price*c.qty) + '\n';
+    if (c.customName) msg += '  Nombre: ' + c.customName + '\n';
+    if (c.customNumber) msg += '  Numero: ' + c.customNumber + '\n';
+    if (c.patches) msg += '  Parches: ' + c.patches + '\n';
+    if (c.notes) msg += '  Notas: ' + c.notes + '\n';
     total += c.price*c.qty;
   });
   msg += '\nTotal: $' + total + '\n';
