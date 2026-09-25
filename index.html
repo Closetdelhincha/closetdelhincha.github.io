@@ -94,6 +94,10 @@
   .modal-confirm{width:100%;background:var(--accent);color:#07130a;border:none;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;margin-top:16px}
   .price-total{font-size:19px;font-weight:800;color:var(--accent);text-align:center;margin-top:14px}
   .price-total small{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+  .mystery-card{display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(135deg,#7f1d1d,#dc2626);border-radius:14px;padding:14px 16px;margin-bottom:14px;color:#fff}
+  .mystery-card-text{font-size:13px;line-height:1.4}
+  .mystery-card-text span{opacity:.85;font-size:12px}
+  .mystery-card-btn{background:#fff;color:#b91c1c;border:none;padding:10px 16px;border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap;flex:0 0 auto}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:#07130a;padding:10px 18px;border-radius:10px;font-weight:600;font-size:14px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
   .toast.show{opacity:1}
   footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
@@ -203,6 +207,10 @@
 </div>
 
 <main>
+  <div class="mystery-card" id="mysteryCard">
+    <div class="mystery-card-text"><b>Camiseta Misterio</b> - $25<br><span>Al azar de todo el catalogo. Vos elegis la talla.</span></div>
+    <button class="mystery-card-btn" id="mysteryOpenBtn">Quiero una</button>
+  </div>
   <div class="result-count" id="resultCount"></div>
   <div class="grid" id="grid"></div>
 </main>
@@ -240,6 +248,19 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="mysteryModal">
+  <div class="modal">
+    <h3>Camiseta Misterio - $25</h3>
+    <p style="color:var(--muted);font-size:13px;margin:-6px 0 14px">Una camiseta al azar de todo el catalogo. Elegis la talla y, si queres, una preferencia de equipo. El resto es sorpresa.</p>
+    <div class="field-label">Talla</div>
+    <div class="size-row" id="mysterySizeRow"></div>
+    <div class="field-label">Preferencia (opcional)</div>
+    <div class="size-row" id="mysteryModeRow"></div>
+    <input type="text" id="mysteryTeamInput" placeholder="Nombre del equipo" style="display:none;margin-top:8px">
+    <button class="modal-confirm" id="mysteryConfirm" style="margin-top:16px">Agregar Camiseta Misterio - $25</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -249,6 +270,8 @@ var cart = JSON.parse(localStorage.getItem('cart_hincha') || '[]');
 var activeTag = '';
 var activeLeague = '';
 var pendingProduct = null, pendingSize = null, pendingPatchCount = 0;
+var pendingMysterySize = null, pendingMysteryMode = 'ninguno';
+var MYSTERY_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23dc2626'/%3E%3Ctext x='50' y='64' font-size='46' text-anchor='middle' fill='white' font-family='Arial'%3E%3F%3C/text%3E%3C/svg%3E";
 var dataLoaded = false;
 
 var TAGS_BY_LEAGUE = {
@@ -618,6 +641,11 @@ function confirmAdd() {
 function saveCart() { localStorage.setItem('cart_hincha', JSON.stringify(cart)); updateCartUI(); }
 
 function cartItemMeta(c) {
+  if (c.mysteryPick) {
+    var mparts = ['Talla ' + c.size + ' - $' + c.price + ' c/u', 'Es sorpresa - se revela al recibir tu pedido'];
+    if (c.notes) mparts.push(c.notes);
+    return mparts.join('\n');
+  }
   var parts = ['Talla ' + c.size + ' - $' + c.price + ' c/u'];
   if (c.customName) parts.push('Nombre: ' + c.customName);
   if (c.customNumber) parts.push('Numero: ' + c.customNumber);
@@ -681,6 +709,7 @@ function sendWhatsApp() {
     if (c.customNumber) msg += '  Numero: ' + c.customNumber + '\n';
     if (c.patchCount) msg += '  Parches: ' + c.patchCount + (c.patches ? ' (' + c.patches + ')' : '') + '\n';
     else if (c.patches) msg += '  Parches: ' + c.patches + '\n';
+    if (c.mysteryPick) msg += '  [SORPRESA] Salio: ' + c.mysteryPick + '\n';
     if (c.notes) msg += '  Notas: ' + c.notes + '\n';
     total += c.price*c.qty;
   });
@@ -689,6 +718,71 @@ function sendWhatsApp() {
   if (phone) msg += '\nTelefono: ' + phone;
   var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
   window.open(url, '_blank');
+}
+
+function openMysteryModal() {
+  pendingMysterySize = null;
+  pendingMysteryMode = 'ninguno';
+  var srow = document.getElementById('mysterySizeRow');
+  var sizes = ['S','M','L','XL','2XL'];
+  var sizeLabels = { '2XL': 'XXL' };
+  var shtml = '';
+  sizes.forEach(function(s){
+    shtml += '<button class="size-btn" data-size="' + s + '">' + (sizeLabels[s]||s) + '</button>';
+  });
+  srow.innerHTML = shtml;
+  srow.querySelectorAll('.size-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      pendingMysterySize = b.getAttribute('data-size');
+      srow.querySelectorAll('.size-btn').forEach(function(x){ x.classList.remove('sel'); });
+      b.classList.add('sel');
+    });
+  });
+  var mrow = document.getElementById('mysteryModeRow');
+  var modes = [{m:'ninguno',label:'Cualquiera'},{m:'incluir',label:'Que sea de un equipo'},{m:'evitar',label:'Evitar un equipo'}];
+  var mhtml = '';
+  modes.forEach(function(o){
+    mhtml += '<button class="size-btn' + (o.m==='ninguno'?' sel':'') + '" data-mode="' + o.m + '">' + o.label + '</button>';
+  });
+  mrow.innerHTML = mhtml;
+  var teamInput = document.getElementById('mysteryTeamInput');
+  teamInput.value = '';
+  teamInput.style.display = 'none';
+  mrow.querySelectorAll('.size-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      pendingMysteryMode = b.getAttribute('data-mode');
+      mrow.querySelectorAll('.size-btn').forEach(function(x){ x.classList.remove('sel'); });
+      b.classList.add('sel');
+      teamInput.style.display = pendingMysteryMode === 'ninguno' ? 'none' : 'block';
+      teamInput.placeholder = pendingMysteryMode === 'incluir' ? 'Ej: Barcelona' : 'Ej: Real Madrid';
+    });
+  });
+  document.getElementById('mysteryModal').classList.add('show');
+}
+
+function confirmMystery() {
+  if (!pendingMysterySize) { showToast('Elegi una talla'); return; }
+  var teamText = document.getElementById('mysteryTeamInput').value.trim();
+  var pool = PRODUCTS.filter(function(p){ return p.active && (p.league === 'Futbol' || p.league === 'NBA'); });
+  if (pendingMysteryMode === 'incluir' && teamText) {
+    pool = pool.filter(function(p){ return p.name.toLowerCase().indexOf(teamText.toLowerCase()) >= 0; });
+  } else if (pendingMysteryMode === 'evitar' && teamText) {
+    pool = pool.filter(function(p){ return p.name.toLowerCase().indexOf(teamText.toLowerCase()) < 0; });
+  }
+  if (pool.length === 0) { showToast('No encontramos camisas con ese filtro, proba otro equipo'); return; }
+  var chosen = pool[Math.floor(Math.random() * pool.length)];
+  var filterDesc = '';
+  if (pendingMysteryMode === 'incluir' && teamText) filterDesc = 'Equipo preferido: ' + teamText;
+  else if (pendingMysteryMode === 'evitar' && teamText) filterDesc = 'Evitando: ' + teamText;
+  cart.push({
+    id: 'misterio-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+    name: 'Camiseta Misterio', image: MYSTERY_IMG, price: 25,
+    size: pendingMysterySize, qty: 1, customName: '', customNumber: '', patches: '', patchCount: 0,
+    notes: filterDesc, mysteryPick: chosen.name
+  });
+  saveCart();
+  document.getElementById('mysteryModal').classList.remove('show');
+  showToast('Camiseta Misterio agregada al carrito!');
 }
 
 function showToast(text) {
@@ -715,6 +809,9 @@ function openClosetIntro() {
 })();
 document.getElementById('fieldName').addEventListener('input', updatePriceTotal);
 document.getElementById('fieldNumber').addEventListener('input', updatePriceTotal);
+document.getElementById('mysteryOpenBtn').addEventListener('click', openMysteryModal);
+document.getElementById('mysteryConfirm').addEventListener('click', confirmMystery);
+document.getElementById('mysteryModal').addEventListener('click', function(e){ if (e.target.id === 'mysteryModal') e.target.classList.remove('show'); });
 init();
 </script>
 </body>
