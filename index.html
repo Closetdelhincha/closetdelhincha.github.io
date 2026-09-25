@@ -344,8 +344,20 @@ function openSideDrawer() { document.getElementById('sideDrawer').classList.add(
 function closeSideDrawer() { document.getElementById('sideDrawer').classList.remove('show'); document.getElementById('sideOverlay').classList.remove('show'); }
 
 function initWelcome() {
-  var overlay = document.getElementById('welcomeOverlay');
   var step = document.getElementById('welcomeStep');
+  showWelcomeMain(step);
+}
+
+function showWelcomeMain(step) {
+  step.className = 'welcome-card';
+  step.innerHTML =
+    '<div class="welcome-title">Bienvenido a <span>El Closet del Hincha</span></div>' +
+    '<p class="welcome-text">A traves de esta pagina tenes acceso a <b>mas de 6.000 camisetas</b> de Futbol, NBA y F1.<br><br>Ya sabes que estas buscando, o preferis entrar al closet y explorar?</p>' +
+    '<div class="welcome-btns">' +
+      '<button class="welcome-btn primary" id="btnKnowClub">Ya se lo que busco</button>' +
+      '<button class="welcome-btn secondary" id="btnEnterCloset">Entrar al closet</button>' +
+      '<button class="welcome-btn degen" id="btnDegen">Zona del Degen</button>' +
+    '</div>';
   document.getElementById('btnEnterCloset').addEventListener('click', function(){
     closeWelcome();
   });
@@ -353,8 +365,25 @@ function initWelcome() {
     showSportPicker(step);
   });
   document.getElementById('btnDegen').addEventListener('click', function(){
-    var msg = 'Hola! Quiero saber mas sobre la Zona del Degen.';
-    window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg), '_blank');
+    showDegenZone(step);
+  });
+}
+
+function showDegenZone(step) {
+  step.className = 'welcome-card';
+  step.innerHTML =
+    '<button class="club-back" id="degenBack">&larr; Volver</button>' +
+    '<div class="welcome-title" style="font-size:20px;margin-bottom:6px">Zona del Degen</div>' +
+    '<p class="welcome-text" style="margin-bottom:14px">Opciones para los que se la juegan.</p>' +
+    '<div class="welcome-btns">' +
+      '<button class="welcome-btn degen" id="degenMysteryBtn">Camiseta Misterio - $25</button>' +
+    '</div>';
+  document.getElementById('degenBack').addEventListener('click', function(){
+    showWelcomeMain(step);
+  });
+  document.getElementById('degenMysteryBtn').addEventListener('click', function(){
+    closeWelcome();
+    openMysteryModal();
   });
 }
 
