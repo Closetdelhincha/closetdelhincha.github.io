@@ -1,27 +1,33 @@
 {
-    "updatedAt":  "2026-09-25T21:19:03.5526829Z",
+    "updatedAt":  "2026-09-25T21:25:29.5946017Z",
     "weekLabel":  "Fin de semana del 10 y 11 de octubre",
     "matches":  [
                     {
-                        "away":  "Manchester City",
-                        "competition":  "Premier League",
                         "id":  1,
+                        "competition":  "Premier League",
+                        "away":  "Manchester City",
+                        "awayCrest":  "https://crests.football-data.org/65.png",
                         "date":  "2026-10-11T15:30:00Z",
-                        "home":  "Liverpool"
+                        "home":  "Liverpool",
+                        "homeCrest":  "https://crests.football-data.org/64.png"
                     },
                     {
-                        "away":  "Villarreal",
-                        "competition":  "La Liga",
                         "id":  2,
+                        "competition":  "La Liga",
+                        "away":  "Villarreal",
+                        "awayCrest":  "https://crests.football-data.org/94.png",
                         "date":  "2026-10-10T19:00:00Z",
-                        "home":  "Real Madrid"
+                        "home":  "Real Madrid",
+                        "homeCrest":  "https://crests.football-data.org/86.png"
                     },
                     {
-                        "away":  "Parma",
-                        "competition":  "Serie A",
                         "id":  3,
+                        "competition":  "Serie A",
+                        "away":  "Parma",
+                        "awayCrest":  "https://crests.football-data.org/112.png",
                         "date":  "2026-10-10T16:00:00Z",
-                        "home":  "Inter de Milan"
+                        "home":  "Inter de Milan",
+                        "homeCrest":  "https://crests.football-data.org/108.png"
                     }
                 ]
 }
