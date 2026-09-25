@@ -1,1 +1,27 @@
-{"weekLabel":"Partidos de ejemplo - se actualiza con datos reales","updatedAt":"","matches":[{"id":1,"home":"Real Madrid","away":"Barcelona","competition":"La Liga","date":""},{"id":2,"home":"Manchester City","away":"Liverpool","competition":"Premier League","date":""},{"id":3,"home":"Bayern Munich","away":"Borussia Dortmund","competition":"Bundesliga","date":""}]}
+{
+    "updatedAt":  "2026-09-25T21:19:03.5526829Z",
+    "weekLabel":  "Fin de semana del 10 y 11 de octubre",
+    "matches":  [
+                    {
+                        "away":  "Manchester City",
+                        "competition":  "Premier League",
+                        "id":  1,
+                        "date":  "2026-10-11T15:30:00Z",
+                        "home":  "Liverpool"
+                    },
+                    {
+                        "away":  "Villarreal",
+                        "competition":  "La Liga",
+                        "id":  2,
+                        "date":  "2026-10-10T19:00:00Z",
+                        "home":  "Real Madrid"
+                    },
+                    {
+                        "away":  "Parma",
+                        "competition":  "Serie A",
+                        "id":  3,
+                        "date":  "2026-10-10T16:00:00Z",
+                        "home":  "Inter de Milan"
+                    }
+                ]
+}
