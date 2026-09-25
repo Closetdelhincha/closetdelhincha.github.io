@@ -417,11 +417,9 @@ function showDegenZone(step) {
     showWelcomeMain(step);
   });
   document.getElementById('degenMysteryBtn').addEventListener('click', function(){
-    closeWelcome();
     openMysteryModal();
   });
   document.getElementById('degenParlukiBtn').addEventListener('click', function(){
-    closeWelcome();
     openParlukiModal();
   });
 }
@@ -851,6 +849,7 @@ function confirmMystery() {
   });
   saveCart();
   document.getElementById('mysteryModal').classList.remove('show');
+  closeWelcome();
   showToast('Camiseta Misterio agregada al carrito!');
 }
 
@@ -927,6 +926,7 @@ function sendParlukiPrediction() {
     msg += '- ' + m.home + ' ' + sc.home + ' - ' + sc.away + ' ' + m.away + '\n';
   });
   document.getElementById('parlukiModal').classList.remove('show');
+  closeWelcome();
   window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
@@ -956,10 +956,10 @@ document.getElementById('fieldName').addEventListener('input', updatePriceTotal)
 document.getElementById('fieldNumber').addEventListener('input', updatePriceTotal);
 document.getElementById('mysteryOpenBtn').addEventListener('click', openMysteryModal);
 document.getElementById('mysteryConfirm').addEventListener('click', confirmMystery);
-document.getElementById('mysteryModal').addEventListener('click', function(e){ if (e.target.id === 'mysteryModal') e.target.classList.remove('show'); });
+document.getElementById('mysteryModal').addEventListener('click', function(e){ if (e.target.id === 'mysteryModal') { e.target.classList.remove('show'); closeWelcome(); } });
 document.getElementById('parlukiTokenBtn').addEventListener('click', sendParlukiToken);
 document.getElementById('parlukiNextBtn').addEventListener('click', parlukiNextStep);
-document.getElementById('parlukiModal').addEventListener('click', function(e){ if (e.target.id === 'parlukiModal') e.target.classList.remove('show'); });
+document.getElementById('parlukiModal').addEventListener('click', function(e){ if (e.target.id === 'parlukiModal') { e.target.classList.remove('show'); closeWelcome(); } });
 init();
 </script>
 </body>
