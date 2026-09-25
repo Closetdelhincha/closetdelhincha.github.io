@@ -98,6 +98,10 @@
   .mystery-card-text{font-size:13px;line-height:1.4}
   .mystery-card-text span{opacity:.85;font-size:12px}
   .mystery-card-btn{background:#fff;color:#b91c1c;border:none;padding:10px 16px;border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap;flex:0 0 auto}
+  .parluki-match{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:10px}
+  .parluki-match-title{font-weight:700;font-size:14px}
+  .parluki-match-sub{color:var(--muted);font-size:11px;margin-bottom:8px}
+  .parluki-token-btn{width:100%;background:#f59e0b;color:#3d2400;border:none;padding:12px;border-radius:10px;font-weight:800;cursor:pointer;margin-top:8px}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:#07130a;padding:10px 18px;border-radius:10px;font-weight:600;font-size:14px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
   .toast.show{opacity:1}
   footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
@@ -261,6 +265,18 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="parlukiModal">
+  <div class="modal">
+    <h3>Parluki - Camiseta Gratis</h3>
+    <p style="color:var(--muted);font-size:13px;margin:-6px 0 14px">Acertá los 3 resultados del finde y ganate una camiseta gratis. Necesitás un token: $5, o gratis si comprás una camiseta (los tokens no se acumulan por varias camisetas).</p>
+    <div class="field-label" id="parlukiWeekLabel">Partidos del finde</div>
+    <div id="parlukiMatches"></div>
+    <button class="parluki-token-btn" id="parlukiTokenBtn">Quiero mi token - $5</button>
+    <div class="field-label" style="margin-top:18px">Ya tengo token - envio mi prediccion</div>
+    <button class="modal-confirm" id="parlukiSendBtn">Enviar prediccion por WhatsApp</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -271,6 +287,8 @@ var activeTag = '';
 var activeLeague = '';
 var pendingProduct = null, pendingSize = null, pendingPatchCount = 0;
 var pendingMysterySize = null, pendingMysteryMode = 'ninguno';
+var PARLUKI_DATA = {matches: []};
+var pendingParlukiPicks = {};
 var MYSTERY_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23dc2626'/%3E%3Ctext x='50' y='64' font-size='46' text-anchor='middle' fill='white' font-family='Arial'%3E%3F%3C/text%3E%3C/svg%3E";
 var dataLoaded = false;
 
@@ -325,6 +343,7 @@ function init() {
     render();
     updateCartUI();
   });
+  loadJSON('data/parluki.json').then(function(d){ if (d && d.matches) PARLUKI_DATA = d; });
   document.getElementById('searchInput').addEventListener('input', render);
   document.getElementById('teamSelect').addEventListener('change', render);
   document.getElementById('cartBtn').addEventListener('click', openDrawer);
@@ -377,6 +396,7 @@ function showDegenZone(step) {
     '<p class="welcome-text" style="margin-bottom:14px">Opciones para los que se la juegan.</p>' +
     '<div class="welcome-btns">' +
       '<button class="welcome-btn degen" id="degenMysteryBtn">Camiseta Misterio - $25</button>' +
+      '<button class="welcome-btn degen" id="degenParlukiBtn">Parluki - Camiseta Gratis</button>' +
     '</div>';
   document.getElementById('degenBack').addEventListener('click', function(){
     showWelcomeMain(step);
@@ -384,6 +404,10 @@ function showDegenZone(step) {
   document.getElementById('degenMysteryBtn').addEventListener('click', function(){
     closeWelcome();
     openMysteryModal();
+  });
+  document.getElementById('degenParlukiBtn').addEventListener('click', function(){
+    closeWelcome();
+    openParlukiModal();
   });
 }
 
@@ -814,6 +838,62 @@ function confirmMystery() {
   showToast('Camiseta Misterio agregada al carrito!');
 }
 
+function openParlukiModal() {
+  pendingParlukiPicks = {};
+  document.getElementById('parlukiWeekLabel').textContent = PARLUKI_DATA.weekLabel || 'Partidos del finde';
+  renderParlukiMatches();
+  document.getElementById('parlukiModal').classList.add('show');
+}
+
+function renderParlukiMatches() {
+  var el = document.getElementById('parlukiMatches');
+  var matches = PARLUKI_DATA.matches || [];
+  if (matches.length === 0) {
+    el.innerHTML = '<p style="color:var(--muted);font-size:13px">Todavia no hay partidos cargados para este finde. Volve a intentar mas tarde.</p>';
+    return;
+  }
+  var html = '';
+  matches.forEach(function(m){
+    html += '<div class="parluki-match">' +
+      '<div class="parluki-match-title">' + m.home + ' vs ' + m.away + '</div>' +
+      '<div class="parluki-match-sub">' + m.competition + '</div>' +
+      '<div class="size-row" data-match="' + m.id + '">' +
+        '<button class="size-btn" data-pick="Gana ' + m.home + '">Gana ' + m.home + '</button>' +
+        '<button class="size-btn" data-pick="Empate">Empate</button>' +
+        '<button class="size-btn" data-pick="Gana ' + m.away + '">Gana ' + m.away + '</button>' +
+      '</div>' +
+    '</div>';
+  });
+  el.innerHTML = html;
+  el.querySelectorAll('.size-row').forEach(function(row){
+    var matchId = row.getAttribute('data-match');
+    row.querySelectorAll('.size-btn').forEach(function(b){
+      b.addEventListener('click', function(){
+        row.querySelectorAll('.size-btn').forEach(function(x){ x.classList.remove('sel'); });
+        b.classList.add('sel');
+        pendingParlukiPicks[matchId] = b.getAttribute('data-pick');
+      });
+    });
+  });
+}
+
+function sendParlukiToken() {
+  var msg = 'Hola! Quiero mi token de Parluki para jugar este finde.';
+  window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function sendParlukiPrediction() {
+  var matches = PARLUKI_DATA.matches || [];
+  if (matches.length === 0) { showToast('No hay partidos cargados todavia'); return; }
+  var missing = matches.some(function(m){ return !pendingParlukiPicks[m.id]; });
+  if (missing) { showToast('Elegi un resultado para los 3 partidos'); return; }
+  var msg = 'Hola! Ya tengo mi token de Parluki. Te paso mi prediccion:\n\n';
+  matches.forEach(function(m){
+    msg += '- ' + m.home + ' vs ' + m.away + ': ' + pendingParlukiPicks[m.id] + '\n';
+  });
+  window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
 function showToast(text) {
   var t = document.getElementById('toast');
   t.textContent = text; t.classList.add('show');
@@ -841,6 +921,9 @@ document.getElementById('fieldNumber').addEventListener('input', updatePriceTota
 document.getElementById('mysteryOpenBtn').addEventListener('click', openMysteryModal);
 document.getElementById('mysteryConfirm').addEventListener('click', confirmMystery);
 document.getElementById('mysteryModal').addEventListener('click', function(e){ if (e.target.id === 'mysteryModal') e.target.classList.remove('show'); });
+document.getElementById('parlukiTokenBtn').addEventListener('click', sendParlukiToken);
+document.getElementById('parlukiSendBtn').addEventListener('click', sendParlukiPrediction);
+document.getElementById('parlukiModal').addEventListener('click', function(e){ if (e.target.id === 'parlukiModal') e.target.classList.remove('show'); });
 init();
 </script>
 </body>
