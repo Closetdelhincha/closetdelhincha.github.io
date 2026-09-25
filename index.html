@@ -121,6 +121,7 @@
 
   .welcome-overlay{position:fixed;inset:0;background:radial-gradient(circle at 50% 20%, #1a2332, #0a0c10 70%);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;opacity:1;transition:opacity .35s ease;overflow-y:auto}
   .welcome-overlay.hide{opacity:0;pointer-events:none}
+  .welcome-overlay.degen-bg{background:#000}
   .welcome-card{max-width:460px;width:100%;text-align:center;animation:welcomeIn .6s cubic-bezier(.2,.9,.3,1.2);margin:auto}
   @keyframes welcomeIn{from{opacity:0;transform:translateY(24px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
   .welcome-emoji{font-size:56px;margin-bottom:6px;animation:bounce 2.2s ease-in-out infinite}
@@ -380,6 +381,7 @@ function initWelcome() {
 }
 
 function showWelcomeMain(step) {
+  document.getElementById('welcomeOverlay').classList.remove('degen-bg');
   step.className = 'welcome-card';
   step.innerHTML =
     '<div class="welcome-title">Bienvenido a <span>El Closet del Hincha</span></div>' +
@@ -401,6 +403,7 @@ function showWelcomeMain(step) {
 }
 
 function showDegenZone(step) {
+  document.getElementById('welcomeOverlay').classList.add('degen-bg');
   step.className = 'welcome-card';
   step.innerHTML =
     '<button class="club-back" id="degenBack">&larr; Volver</button>' +
@@ -425,6 +428,7 @@ function showDegenZone(step) {
 
 function closeWelcome() {
   var overlay = document.getElementById('welcomeOverlay');
+  overlay.classList.remove('degen-bg');
   overlay.classList.add('hide');
   setTimeout(function(){ overlay.style.display='none'; }, 400);
 }
