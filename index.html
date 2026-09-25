@@ -102,6 +102,19 @@
   .parluki-match-title{font-weight:700;font-size:14px}
   .parluki-match-sub{color:var(--muted);font-size:11px;margin-bottom:8px}
   .parluki-token-btn{width:100%;background:#f59e0b;color:#3d2400;border:none;padding:12px;border-radius:10px;font-weight:800;cursor:pointer;margin-top:8px}
+  .parluki-progress{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px;margin-bottom:8px}
+  .parluki-back{color:var(--accent);cursor:pointer;font-weight:600}
+  .parluki-competition{text-align:center;color:var(--accent);font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;margin-bottom:10px}
+  .parluki-scoreboard{display:flex;align-items:center;justify-content:space-between;gap:6px;background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:16px 10px}
+  .parluki-team{flex:1;text-align:center;min-width:0}
+  .parluki-crest{width:44px;height:44px;object-fit:contain;margin-bottom:6px}
+  .parluki-team-name{font-size:12px;font-weight:700;line-height:1.25}
+  .parluki-stepper-group{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+  .parluki-stepper{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .parluki-step-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:16px;font-weight:700;cursor:pointer;line-height:1}
+  .parluki-score-val{font-size:26px;font-weight:800;min-width:26px;text-align:center}
+  .parluki-dash{font-size:22px;font-weight:800;color:var(--muted)}
+  .parluki-next-btn{width:100%;background:var(--accent);color:#07130a;border:none;padding:13px;border-radius:10px;font-weight:800;cursor:pointer;margin-top:16px;font-size:15px}
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:#07130a;padding:10px 18px;border-radius:10px;font-weight:600;font-size:14px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
   .toast.show{opacity:1}
   footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
@@ -268,12 +281,10 @@
 <div class="modal-overlay" id="parlukiModal">
   <div class="modal">
     <h3>Parluki - Camiseta Gratis</h3>
-    <p style="color:var(--muted);font-size:13px;margin:-6px 0 14px">Acertá los 3 resultados del finde y ganate una camiseta gratis. Necesitás un token: $5, o gratis si comprás una camiseta (los tokens no se acumulan por varias camisetas).</p>
-    <div class="field-label" id="parlukiWeekLabel">Partidos del finde</div>
+    <p style="color:var(--muted);font-size:13px;margin:-6px 0 14px" id="parlukiWeekLabel">Acertá los 3 resultados exactos del finde y ganate una camiseta gratis.</p>
     <div id="parlukiMatches"></div>
-    <button class="parluki-token-btn" id="parlukiTokenBtn">Quiero mi token - $5</button>
-    <div class="field-label" style="margin-top:18px">Ya tengo token - envio mi prediccion</div>
-    <button class="modal-confirm" id="parlukiSendBtn">Enviar prediccion por WhatsApp</button>
+    <button class="parluki-next-btn" id="parlukiNextBtn">Siguiente</button>
+    <button class="parluki-token-btn" id="parlukiTokenBtn">Todavia no tengo token - Quiero uno ($5)</button>
   </div>
 </div>
 
@@ -288,7 +299,8 @@ var activeLeague = '';
 var pendingProduct = null, pendingSize = null, pendingPatchCount = 0;
 var pendingMysterySize = null, pendingMysteryMode = 'ninguno';
 var PARLUKI_DATA = {matches: []};
-var pendingParlukiPicks = {};
+var pendingParlukiIndex = 0;
+var pendingParlukiScores = {};
 var MYSTERY_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23dc2626'/%3E%3Ctext x='50' y='64' font-size='46' text-anchor='middle' fill='white' font-family='Arial'%3E%3F%3C/text%3E%3C/svg%3E";
 var dataLoaded = false;
 
@@ -839,42 +851,62 @@ function confirmMystery() {
 }
 
 function openParlukiModal() {
-  pendingParlukiPicks = {};
-  document.getElementById('parlukiWeekLabel').textContent = PARLUKI_DATA.weekLabel || 'Partidos del finde';
-  renderParlukiMatches();
+  pendingParlukiIndex = 0;
+  pendingParlukiScores = {};
+  renderParlukiStep();
   document.getElementById('parlukiModal').classList.add('show');
 }
 
-function renderParlukiMatches() {
-  var el = document.getElementById('parlukiMatches');
+function renderParlukiStep() {
   var matches = PARLUKI_DATA.matches || [];
+  var el = document.getElementById('parlukiMatches');
+  var nextBtn = document.getElementById('parlukiNextBtn');
   if (matches.length === 0) {
     el.innerHTML = '<p style="color:var(--muted);font-size:13px">Todavia no hay partidos cargados para este finde. Volve a intentar mas tarde.</p>';
+    nextBtn.style.display = 'none';
     return;
   }
-  var html = '';
-  matches.forEach(function(m){
-    html += '<div class="parluki-match">' +
-      '<div class="parluki-match-title">' + m.home + ' vs ' + m.away + '</div>' +
-      '<div class="parluki-match-sub">' + m.competition + '</div>' +
-      '<div class="size-row" data-match="' + m.id + '">' +
-        '<button class="size-btn" data-pick="Gana ' + m.home + '">Gana ' + m.home + '</button>' +
-        '<button class="size-btn" data-pick="Empate">Empate</button>' +
-        '<button class="size-btn" data-pick="Gana ' + m.away + '">Gana ' + m.away + '</button>' +
+  nextBtn.style.display = 'block';
+  var m = matches[pendingParlukiIndex];
+  var sc = pendingParlukiScores[m.id] || { home: 0, away: 0 };
+  pendingParlukiScores[m.id] = sc;
+  var backHtml = pendingParlukiIndex > 0 ? '<span class="parluki-back" id="parlukiBack">&larr; Atras</span>' : '<span></span>';
+  var html =
+    '<div class="parluki-progress">' + backHtml + '<span>Partido ' + (pendingParlukiIndex + 1) + ' de ' + matches.length + '</span></div>' +
+    '<div class="parluki-competition">' + m.competition + '</div>' +
+    '<div class="parluki-scoreboard">' +
+      '<div class="parluki-team">' + (m.homeCrest ? '<img class="parluki-crest" src="' + m.homeCrest + '">' : '') + '<div class="parluki-team-name">' + m.home + '</div></div>' +
+      '<div class="parluki-stepper-group">' +
+        '<div class="parluki-stepper"><button class="parluki-step-btn" data-team="home" data-d="1">+</button><span class="parluki-score-val" id="parlukiScoreHome">' + sc.home + '</span><button class="parluki-step-btn" data-team="home" data-d="-1">-</button></div>' +
+        '<span class="parluki-dash">-</span>' +
+        '<div class="parluki-stepper"><button class="parluki-step-btn" data-team="away" data-d="1">+</button><span class="parluki-score-val" id="parlukiScoreAway">' + sc.away + '</span><button class="parluki-step-btn" data-team="away" data-d="-1">-</button></div>' +
       '</div>' +
+      '<div class="parluki-team">' + (m.awayCrest ? '<img class="parluki-crest" src="' + m.awayCrest + '">' : '') + '<div class="parluki-team-name">' + m.away + '</div></div>' +
     '</div>';
-  });
   el.innerHTML = html;
-  el.querySelectorAll('.size-row').forEach(function(row){
-    var matchId = row.getAttribute('data-match');
-    row.querySelectorAll('.size-btn').forEach(function(b){
-      b.addEventListener('click', function(){
-        row.querySelectorAll('.size-btn').forEach(function(x){ x.classList.remove('sel'); });
-        b.classList.add('sel');
-        pendingParlukiPicks[matchId] = b.getAttribute('data-pick');
-      });
+  el.querySelectorAll('.parluki-step-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      var team = b.getAttribute('data-team');
+      var d = +b.getAttribute('data-d');
+      var next = Math.max(0, Math.min(9, pendingParlukiScores[m.id][team] + d));
+      pendingParlukiScores[m.id][team] = next;
+      document.getElementById(team === 'home' ? 'parlukiScoreHome' : 'parlukiScoreAway').textContent = next;
     });
   });
+  var backEl = document.getElementById('parlukiBack');
+  if (backEl) backEl.addEventListener('click', function(){ pendingParlukiIndex--; renderParlukiStep(); });
+  nextBtn.textContent = (pendingParlukiIndex === matches.length - 1) ? 'Enviar prediccion por WhatsApp' : 'Siguiente partido';
+}
+
+function parlukiNextStep() {
+  var matches = PARLUKI_DATA.matches || [];
+  if (matches.length === 0) return;
+  if (pendingParlukiIndex < matches.length - 1) {
+    pendingParlukiIndex++;
+    renderParlukiStep();
+  } else {
+    sendParlukiPrediction();
+  }
 }
 
 function sendParlukiToken() {
@@ -885,12 +917,12 @@ function sendParlukiToken() {
 function sendParlukiPrediction() {
   var matches = PARLUKI_DATA.matches || [];
   if (matches.length === 0) { showToast('No hay partidos cargados todavia'); return; }
-  var missing = matches.some(function(m){ return !pendingParlukiPicks[m.id]; });
-  if (missing) { showToast('Elegi un resultado para los 3 partidos'); return; }
   var msg = 'Hola! Ya tengo mi token de Parluki. Te paso mi prediccion:\n\n';
   matches.forEach(function(m){
-    msg += '- ' + m.home + ' vs ' + m.away + ': ' + pendingParlukiPicks[m.id] + '\n';
+    var sc = pendingParlukiScores[m.id] || { home: 0, away: 0 };
+    msg += '- ' + m.home + ' ' + sc.home + ' - ' + sc.away + ' ' + m.away + '\n';
   });
+  document.getElementById('parlukiModal').classList.remove('show');
   window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
@@ -922,7 +954,7 @@ document.getElementById('mysteryOpenBtn').addEventListener('click', openMysteryM
 document.getElementById('mysteryConfirm').addEventListener('click', confirmMystery);
 document.getElementById('mysteryModal').addEventListener('click', function(e){ if (e.target.id === 'mysteryModal') e.target.classList.remove('show'); });
 document.getElementById('parlukiTokenBtn').addEventListener('click', sendParlukiToken);
-document.getElementById('parlukiSendBtn').addEventListener('click', sendParlukiPrediction);
+document.getElementById('parlukiNextBtn').addEventListener('click', parlukiNextStep);
 document.getElementById('parlukiModal').addEventListener('click', function(e){ if (e.target.id === 'parlukiModal') e.target.classList.remove('show'); });
 init();
 </script>
