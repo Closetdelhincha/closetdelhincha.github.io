@@ -42,16 +42,22 @@
   @media(min-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}
   @media(min-width:900px){.grid{grid-template-columns:repeat(4,1fr)}}
   @media(min-width:1200px){.grid{grid-template-columns:repeat(5,1fr)}}
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+  .catalog-hero{background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:18px;padding:22px 18px;margin-bottom:16px;color:#fff;text-align:center}
+  .catalog-hero h2{margin:0 0 4px;font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:.02em}
+  .catalog-hero p{margin:0;font-size:12px;opacity:.85;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 2px rgba(20,22,26,.05);transition:transform .12s ease}
+  .card:active{transform:scale(.97)}
+  .card-img-wrap{position:relative}
   .card img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#f1f1f3;display:block}
-  .card-body{padding:10px 10px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
-  .card-league{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);font-weight:700}
-  .card-name{font-size:13px;font-weight:600;line-height:1.3;min-height:34px}
-  .card-price{color:var(--accent);font-weight:700;font-size:15px}
+  .card-badge{position:absolute;top:8px;left:8px;background:rgba(20,22,26,.82);color:#fff;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:4px 9px;border-radius:999px}
+  .card-body{padding:11px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .card-name{font-size:13px;font-weight:700;line-height:1.3;min-height:34px;color:var(--text)}
   .card-tags{display:flex;flex-wrap:wrap;gap:4px}
-  .tag{font-size:10px;color:var(--muted);background:var(--panel2);padding:2px 7px;border-radius:999px}
-  .add-btn{margin-top:auto;background:var(--accent);color:#fff;border:none;padding:9px;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer}
-  .add-btn:active{background:var(--accent2)}
+  .tag{font-size:9px;color:var(--muted);background:var(--panel2);padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em}
+  .card-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:4px}
+  .card-price{color:var(--accent);font-weight:800;font-size:16px}
+  .add-btn{background:var(--text);color:#fff;border:none;padding:8px 14px;border-radius:999px;font-weight:700;font-size:11px;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;flex:0 0 auto}
+  .add-btn:active{background:var(--accent)}
   .empty{text-align:center;color:var(--muted);padding:60px 20px}
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:29;display:none}
   .overlay.show{display:block}
@@ -227,6 +233,10 @@
 </div>
 
 <main>
+  <div class="catalog-hero">
+    <h2>Camisetas Oficiales</h2>
+    <p>Futbol - NBA - F1 - NFL/MLB</p>
+  </div>
   <div class="mystery-card" id="mysteryCard">
     <div class="mystery-card-text"><b>Camiseta Misterio</b> - $25<br><span>Al azar de todo el catalogo. Vos elegis la talla.</span></div>
     <button class="mystery-card-btn" id="mysteryOpenBtn">Quiero una</button>
@@ -614,13 +624,17 @@ function render() {
     var tagsHtml = '';
     p.tags.slice(0,2).forEach(function(t){ tagsHtml += '<span class="tag">' + t + '</span>'; });
     html += '<div class="card">' +
-      '<img src="' + p.image + '" alt="' + p.name + '" loading="lazy">' +
+      '<div class="card-img-wrap">' +
+        '<img src="' + p.image + '" alt="' + p.name + '" loading="lazy">' +
+        '<span class="card-badge">' + p.league + '</span>' +
+      '</div>' +
       '<div class="card-body">' +
-        '<div class="card-league">' + p.league + '</div>' +
         '<div class="card-name">' + p.name + '</div>' +
-        '<div class="card-price">$' + p.price + '</div>' +
         '<div class="card-tags">' + tagsHtml + '</div>' +
-        '<button class="add-btn" data-id="' + p.id + '">Agregar</button>' +
+        '<div class="card-footer">' +
+          '<div class="card-price">$' + p.price + '</div>' +
+          '<button class="add-btn" data-id="' + p.id + '">Agregar</button>' +
+        '</div>' +
       '</div></div>';
   });
   grid.innerHTML = html;
