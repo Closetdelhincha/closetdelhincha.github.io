@@ -244,6 +244,8 @@
   <div class="drawer-foot">
     <input type="text" id="custName" placeholder="Tu nombre">
     <input type="tel" id="custPhone" placeholder="Tu telefono (para coordinar)">
+    <input type="text" id="custCode" placeholder="Codigo de hincha (opcional)">
+    <div class="total-row" id="discountRow" style="display:none;font-size:13px;color:var(--accent);font-weight:600;margin-bottom:4px"><span>Descuento FOUNDER</span><span>-$5</span></div>
     <div class="total-row"><span>Total</span><span id="cartTotal">$0</span></div>
     <button class="wa-btn" id="waBtn">Enviar pedido por WhatsApp</button>
   </div>
@@ -767,8 +769,16 @@ function updateCartUI() {
     });
   }
   var total = 0; cart.forEach(function(c){ total += c.price*c.qty; });
-  document.getElementById('cartTotal').textContent = '$' + total;
+  var discount = getFounderDiscount(total);
+  document.getElementById('discountRow').style.display = discount > 0 ? 'flex' : 'none';
+  document.getElementById('cartTotal').textContent = '$' + (total - discount);
   document.getElementById('waBtn').disabled = cart.length === 0;
+}
+
+function getFounderDiscount(total) {
+  var code = (document.getElementById('custCode').value || '').trim().toUpperCase();
+  if (code !== 'FOUNDER') return 0;
+  return Math.min(5, total);
 }
 
 function openDrawer() { document.getElementById('drawer').classList.add('show'); document.getElementById('overlay').classList.add('show'); }
@@ -796,7 +806,9 @@ function sendWhatsApp() {
     if (c.notes) msg += '  Notas: ' + c.notes + '\n';
     total += c.price*c.qty;
   });
-  msg += '\nTotal: $' + total + '\n';
+  var discount = getFounderDiscount(total);
+  if (discount > 0) msg += 'Descuento (codigo FOUNDER): -$' + discount + '\n';
+  msg += '\nTotal: $' + (total - discount) + '\n';
   if (name) msg += '\nNombre: ' + name;
   if (phone) msg += '\nTelefono: ' + phone;
   var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
@@ -990,6 +1002,7 @@ function openClosetIntro() {
 })();
 document.getElementById('fieldName').addEventListener('input', updatePriceTotal);
 document.getElementById('fieldNumber').addEventListener('input', updatePriceTotal);
+document.getElementById('custCode').addEventListener('input', updateCartUI);
 document.getElementById('mysteryOpenBtn').addEventListener('click', openMysteryModal);
 document.getElementById('mysteryConfirm').addEventListener('click', confirmMystery);
 document.getElementById('mysteryModal').addEventListener('click', function(e){ if (e.target.id === 'mysteryModal') e.target.classList.remove('show'); });
