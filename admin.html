@@ -61,9 +61,10 @@
       <input type="search" id="pSearch" placeholder="Buscar producto o equipo...">
       <select id="pLeagueFilter">
         <option value="">Todos los deportes</option>
-        <option value="Fútbol">Futbol</option>
+        <option value="Futbol">Futbol</option>
         <option value="NBA">NBA</option>
         <option value="F1">F1</option>
+        <option value="NFL/MLB">NFL/MLB</option>
       </select>
       <select id="pActiveFilter">
         <option value="">Todos</option>
@@ -81,13 +82,27 @@
         <tbody id="pTableBody"></tbody>
       </table>
     </div>
+
+    <h2 style="margin-top:40px;font-size:17px">Parluki - Partidos del finde</h2>
+    <div class="notice">Estos son los 3 partidos que se muestran en la Zona del Degen. El escudo es la URL de la imagen del equipo.</div>
+    <div class="toolbar">
+      <input type="text" id="pkWeekLabel" placeholder="Ej: Fin de semana del 10 y 11 de octubre" style="flex:1;min-width:260px">
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>Local</th><th>Escudo local (URL)</th><th>Visitante</th><th>Escudo visitante (URL)</th><th>Liga</th><th>Fecha (ISO)</th></tr></thead>
+        <tbody id="pkTableBody"></tbody>
+      </table>
+    </div>
+    <button class="btn" id="pkSave" style="margin-top:12px">Guardar partidos de Parluki</button>
+    <div id="pkStatus" class="status-bar"></div>
   </main>
 </div>
 
 <script>
 var REPO = 'Closetdelhincha/closetdelhincha.github.io';
 var TOKEN = localStorage.getItem('gh_token_hincha') || '';
-var FILES = ['productos-futbol.json','productos-futbol-retro.json','productos-futbol-jugador.json','productos-futbol-ninos.json','productos-futbol-fan.json','productos-nba.json','productos-f1.json'];
+var FILES = ['productos-futbol.json','productos-futbol-retro.json','productos-futbol-jugador.json','productos-futbol-ninos.json','productos-futbol-fan.json','productos-nba.json','productos-f1.json','productos-nfl-mlb.json'];
 var fileData = {};
 var products = [];
 
@@ -196,6 +211,7 @@ document.getElementById('tokenSave').addEventListener('click', function(){
   document.getElementById('gate').hidden = true;
   document.getElementById('app').hidden = false;
   loadAll();
+  loadParluki();
 });
 document.getElementById('logoutBtn').addEventListener('click', function(){
   localStorage.removeItem('gh_token_hincha');
@@ -212,8 +228,55 @@ document.getElementById('bulkApply').addEventListener('click', function(){
   renderProducts();
   setStatus('Precio $' + val + ' aplicado a ' + list.length + ' productos (sin guardar todavia).');
 });
+var parlukiData = {weekLabel: '', matches: []};
+var parlukiSha = null;
+
+function loadParluki() {
+  return ghGetFile('data/parluki.json').then(function(r){
+    parlukiData = (r.content && r.content.matches) ? r.content : {weekLabel: '', matches: []};
+    parlukiSha = r.sha;
+    renderParlukiForm();
+  }).catch(function(e){ document.getElementById('pkStatus').textContent = 'Error cargando Parluki: ' + e.message; });
+}
+
+function renderParlukiForm() {
+  document.getElementById('pkWeekLabel').value = parlukiData.weekLabel || '';
+  var tbody = document.getElementById('pkTableBody');
+  var html = '';
+  for (var i = 0; i < 3; i++) {
+    var m = parlukiData.matches[i] || {id: i+1, home: '', away: '', competition: '', homeCrest: '', awayCrest: '', date: ''};
+    html += '<tr>' +
+      '<td><input type="text" data-i="' + i + '" data-f="home" value="' + (m.home||'') + '"></td>' +
+      '<td><input type="text" data-i="' + i + '" data-f="homeCrest" value="' + (m.homeCrest||'') + '" style="width:160px"></td>' +
+      '<td><input type="text" data-i="' + i + '" data-f="away" value="' + (m.away||'') + '"></td>' +
+      '<td><input type="text" data-i="' + i + '" data-f="awayCrest" value="' + (m.awayCrest||'') + '" style="width:160px"></td>' +
+      '<td><input type="text" data-i="' + i + '" data-f="competition" value="' + (m.competition||'') + '" style="width:120px"></td>' +
+      '<td><input type="text" data-i="' + i + '" data-f="date" value="' + (m.date||'') + '" style="width:150px"></td>' +
+    '</tr>';
+  }
+  tbody.innerHTML = html;
+}
+
+document.getElementById('pkSave').addEventListener('click', function(){
+  var matches = [];
+  for (var i = 0; i < 3; i++) {
+    function val(f) { return document.querySelector('[data-i="' + i + '"][data-f="' + f + '"]').value.trim(); }
+    matches.push({ id: i+1, home: val('home'), away: val('away'), competition: val('competition'), homeCrest: val('homeCrest'), awayCrest: val('awayCrest'), date: val('date') });
+  }
+  var payload = { weekLabel: document.getElementById('pkWeekLabel').value.trim(), updatedAt: new Date().toISOString(), matches: matches };
+  document.getElementById('pkStatus').textContent = 'Guardando partidos de Parluki...';
+  ghPut('data/parluki.json', payload, parlukiSha, 'update parluki matches from admin panel').then(function(sha){
+    parlukiSha = sha; parlukiData = payload;
+    document.getElementById('pkStatus').textContent = 'Partidos de Parluki guardados correctamente.';
+    document.getElementById('pkStatus').className = 'status-bar ok';
+  }).catch(function(e){
+    document.getElementById('pkStatus').textContent = 'Error guardando Parluki: ' + e.message;
+    document.getElementById('pkStatus').className = 'status-bar err';
+  });
+});
+
 document.getElementById('saveProducts').addEventListener('click', function(){
-  setStatus('Guardando en GitHub (7 archivos)...');
+  setStatus('Guardando en GitHub (8 archivos)...');
   var byFile = {};
   FILES.forEach(function(f){ byFile[f] = []; });
   products.forEach(function(p){
@@ -234,7 +297,7 @@ document.getElementById('saveProducts').addEventListener('click', function(){
   }).catch(function(e){ setStatus('Error al guardar: ' + e.message, 'err'); });
 });
 
-if (TOKEN) { document.getElementById('gate').hidden = true; document.getElementById('app').hidden = false; loadAll(); }
+if (TOKEN) { document.getElementById('gate').hidden = true; document.getElementById('app').hidden = false; loadAll(); loadParluki(); }
 </script>
 </body>
 </html>
