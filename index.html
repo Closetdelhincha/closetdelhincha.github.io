@@ -286,7 +286,6 @@
     <p style="color:var(--muted);font-size:13px;margin:-6px 0 14px" id="parlukiWeekLabel">Acertá los 3 resultados exactos del finde y ganate una camiseta gratis.</p>
     <div id="parlukiMatches"></div>
     <button class="parluki-next-btn" id="parlukiNextBtn">Siguiente</button>
-    <button class="parluki-token-btn" id="parlukiTokenBtn">Todavia no tengo token - Quiero uno ($5)</button>
   </div>
 </div>
 
@@ -303,6 +302,8 @@ var pendingMysterySize = null, pendingMysteryMode = 'ninguno';
 var PARLUKI_DATA = {matches: []};
 var pendingParlukiIndex = 0;
 var pendingParlukiScores = {};
+var pendingParlukiHasToken = null;
+var PARLUKI_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23f59e0b'/%3E%3Ctext x='50' y='66' font-size='44' text-anchor='middle' fill='%233d2400' font-family='Arial' font-weight='bold'%3EP%3C/text%3E%3C/svg%3E";
 var MYSTERY_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23dc2626'/%3E%3Ctext x='50' y='64' font-size='46' text-anchor='middle' fill='white' font-family='Arial'%3E%3F%3C/text%3E%3C/svg%3E";
 var dataLoaded = false;
 
@@ -711,6 +712,11 @@ function confirmAdd() {
 function saveCart() { localStorage.setItem('cart_hincha', JSON.stringify(cart)); updateCartUI(); }
 
 function cartItemMeta(c) {
+  if (c.parlukiPicks) {
+    var pkParts = [c.parlukiHasToken ? 'Token ya pago' : 'Incluye token nuevo - $5'];
+    c.parlukiPicks.forEach(function(p){ pkParts.push(p.home + ' ' + p.scoreHome + ' - ' + p.scoreAway + ' ' + p.away); });
+    return pkParts.join('\n');
+  }
   if (c.mysteryPick) {
     var mparts = ['Talla ' + c.size + ' - $' + c.price + ' c/u', 'Es sorpresa - se revela al recibir tu pedido'];
     if (c.notes) mparts.push(c.notes);
@@ -774,6 +780,12 @@ function sendWhatsApp() {
   var msg = 'Hola! Quiero hacer un pedido en El Closet del Hincha:\n\n';
   var total = 0;
   cart.forEach(function(c){
+    if (c.parlukiPicks) {
+      msg += '- ' + c.name + ' - $' + (c.price*c.qty) + (c.parlukiHasToken ? ' (token ya pago)' : ' (incluye token nuevo)') + '\n';
+      c.parlukiPicks.forEach(function(p){ msg += '  ' + p.home + ' ' + p.scoreHome + ' - ' + p.scoreAway + ' ' + p.away + ' (' + p.competition + ')\n'; });
+      total += c.price*c.qty;
+      return;
+    }
     msg += '- ' + c.name + ' - Talla ' + c.size + ' x' + c.qty + ' - $' + (c.price*c.qty) + '\n';
     if (c.customName) msg += '  Nombre: ' + c.customName + '\n';
     if (c.customNumber) msg += '  Numero: ' + c.customNumber + '\n';
@@ -858,8 +870,27 @@ function confirmMystery() {
 function openParlukiModal() {
   pendingParlukiIndex = 0;
   pendingParlukiScores = {};
-  renderParlukiStep();
+  pendingParlukiHasToken = null;
+  renderParlukiTokenStep();
   document.getElementById('parlukiModal').classList.add('show');
+}
+
+function renderParlukiTokenStep() {
+  var el = document.getElementById('parlukiMatches');
+  var nextBtn = document.getElementById('parlukiNextBtn');
+  nextBtn.style.display = 'none';
+  el.innerHTML =
+    '<div class="field-label">Ya tenes un token de Parluki?</div>' +
+    '<div class="size-row" id="parlukiTokenRow">' +
+      '<button class="size-btn" data-has="yes">Si, ya tengo uno</button>' +
+      '<button class="size-btn" data-has="no">No, quiero comprar uno ($5)</button>' +
+    '</div>';
+  document.getElementById('parlukiTokenRow').querySelectorAll('.size-btn').forEach(function(b){
+    b.addEventListener('click', function(){
+      pendingParlukiHasToken = b.getAttribute('data-has') === 'yes';
+      renderParlukiStep();
+    });
+  });
 }
 
 function renderParlukiStep() {
@@ -910,25 +941,28 @@ function parlukiNextStep() {
     pendingParlukiIndex++;
     renderParlukiStep();
   } else {
-    sendParlukiPrediction();
+    addParlukiToCart();
   }
 }
 
-function sendParlukiToken() {
-  var msg = 'Hola! Quiero mi token de Parluki para jugar este finde.';
-  window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg), '_blank');
-}
-
-function sendParlukiPrediction() {
+function addParlukiToCart() {
   var matches = PARLUKI_DATA.matches || [];
   if (matches.length === 0) { showToast('No hay partidos cargados todavia'); return; }
-  var msg = 'Hola! Ya tengo mi token de Parluki. Te paso mi prediccion:\n\n';
-  matches.forEach(function(m){
+  var picks = matches.map(function(m){
     var sc = pendingParlukiScores[m.id] || { home: 0, away: 0 };
-    msg += '- ' + m.home + ' ' + sc.home + ' - ' + sc.away + ' ' + m.away + '\n';
+    return { home: m.home, away: m.away, competition: m.competition, scoreHome: sc.home, scoreAway: sc.away };
   });
+  cart.push({
+    id: 'parluki-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+    name: 'Parluki - Prediccion de 3 partidos',
+    image: PARLUKI_IMG,
+    price: pendingParlukiHasToken ? 0 : 5,
+    size: '-', qty: 1, customName: '', customNumber: '', patches: '', patchCount: 0, notes: '',
+    parlukiHasToken: pendingParlukiHasToken, parlukiPicks: picks
+  });
+  saveCart();
   document.getElementById('parlukiModal').classList.remove('show');
-  window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg), '_blank');
+  showToast('Parluki agregado al carrito!');
 }
 
 function showToast(text) {
@@ -958,7 +992,6 @@ document.getElementById('fieldNumber').addEventListener('input', updatePriceTota
 document.getElementById('mysteryOpenBtn').addEventListener('click', openMysteryModal);
 document.getElementById('mysteryConfirm').addEventListener('click', confirmMystery);
 document.getElementById('mysteryModal').addEventListener('click', function(e){ if (e.target.id === 'mysteryModal') e.target.classList.remove('show'); });
-document.getElementById('parlukiTokenBtn').addEventListener('click', sendParlukiToken);
 document.getElementById('parlukiNextBtn').addEventListener('click', parlukiNextStep);
 document.getElementById('parlukiModal').addEventListener('click', function(e){ if (e.target.id === 'parlukiModal') e.target.classList.remove('show'); });
 init();
