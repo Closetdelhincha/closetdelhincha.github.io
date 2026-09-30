@@ -82,6 +82,7 @@
   .apply-btn{width:100%;background:var(--accent);color:#07130a;border:none;padding:13px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer}
 
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:39;display:none;align-items:flex-end;justify-content:center}
+  #mysteryModal, #parlukiModal{background:#000}
   .modal-overlay.show{display:flex}
   .modal{background:var(--panel);width:100%;max-width:460px;border-radius:16px 16px 0 0;padding:18px;max-height:88vh;overflow-y:auto}
   .modal h3{margin:0 0 12px;font-size:16px}
@@ -417,9 +418,11 @@ function showDegenZone(step) {
     showWelcomeMain(step);
   });
   document.getElementById('degenMysteryBtn').addEventListener('click', function(){
+    closeWelcome();
     openMysteryModal();
   });
   document.getElementById('degenParlukiBtn').addEventListener('click', function(){
+    closeWelcome();
     openParlukiModal();
   });
 }
@@ -849,7 +852,6 @@ function confirmMystery() {
   });
   saveCart();
   document.getElementById('mysteryModal').classList.remove('show');
-  closeWelcome();
   showToast('Camiseta Misterio agregada al carrito!');
 }
 
@@ -926,7 +928,6 @@ function sendParlukiPrediction() {
     msg += '- ' + m.home + ' ' + sc.home + ' - ' + sc.away + ' ' + m.away + '\n';
   });
   document.getElementById('parlukiModal').classList.remove('show');
-  closeWelcome();
   window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
@@ -956,10 +957,10 @@ document.getElementById('fieldName').addEventListener('input', updatePriceTotal)
 document.getElementById('fieldNumber').addEventListener('input', updatePriceTotal);
 document.getElementById('mysteryOpenBtn').addEventListener('click', openMysteryModal);
 document.getElementById('mysteryConfirm').addEventListener('click', confirmMystery);
-document.getElementById('mysteryModal').addEventListener('click', function(e){ if (e.target.id === 'mysteryModal') { e.target.classList.remove('show'); closeWelcome(); } });
+document.getElementById('mysteryModal').addEventListener('click', function(e){ if (e.target.id === 'mysteryModal') e.target.classList.remove('show'); });
 document.getElementById('parlukiTokenBtn').addEventListener('click', sendParlukiToken);
 document.getElementById('parlukiNextBtn').addEventListener('click', parlukiNextStep);
-document.getElementById('parlukiModal').addEventListener('click', function(e){ if (e.target.id === 'parlukiModal') { e.target.classList.remove('show'); closeWelcome(); } });
+document.getElementById('parlukiModal').addEventListener('click', function(e){ if (e.target.id === 'parlukiModal') e.target.classList.remove('show'); });
 init();
 </script>
 </body>
