@@ -6,8 +6,8 @@
 <title>El Closet del Hincha</title>
 <style>
   :root{
-    --bg:#0f1115; --panel:#171a21; --panel2:#1f232d; --text:#eef1f6; --muted:#9aa3b2;
-    --accent:#22c55e; --accent2:#16a34a; --border:#2a2f3a; --danger:#ef4444;
+    --bg:#f7f7f8; --panel:#ffffff; --panel2:#f1f1f3; --text:#14161a; --muted:#70757e;
+    --accent:#22c55e; --accent2:#16a34a; --border:#e3e4e8; --danger:#ef4444;
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -43,7 +43,7 @@
   @media(min-width:900px){.grid{grid-template-columns:repeat(4,1fr)}}
   @media(min-width:1200px){.grid{grid-template-columns:repeat(5,1fr)}}
   .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
-  .card img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#0a0c10;display:block}
+  .card img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#f1f1f3;display:block}
   .card-body{padding:10px 10px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
   .card-league{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);font-weight:700}
   .card-name{font-size:13px;font-weight:600;line-height:1.3;min-height:34px}
@@ -121,6 +121,7 @@
   footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
 
   .welcome-overlay{position:fixed;inset:0;background:radial-gradient(circle at 50% 20%, #1a2332, #0a0c10 70%);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;opacity:1;transition:opacity .35s ease;overflow-y:auto}
+  .welcome-overlay{--panel:#14161a; --panel2:#1f2128; --text:#f4f4f5; --muted:#a3a7b0; --border:#33353c;}
   .welcome-overlay.hide{opacity:0;pointer-events:none}
   .welcome-overlay.degen-bg{background:#000}
   .welcome-card{max-width:460px;width:100%;text-align:center;animation:welcomeIn .6s cubic-bezier(.2,.9,.3,1.2);margin:auto}
