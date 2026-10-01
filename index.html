@@ -552,7 +552,7 @@ body{font-family:var(--body);background:var(--bg);-webkit-font-smoothing:antiali
 
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
-    <h3 id="modalTitle">Personaliza tu camiseta</h3>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><h3 id="modalTitle" style="margin:0">Personaliza tu camiseta</h3><button class="drawer-close" id="modalClose" aria-label="Cerrar">X</button></div>
     <div class="field-label">Talla</div>
     <div class="size-row" id="sizeRow"></div>
     <div id="customBlock">
@@ -1464,7 +1464,7 @@ document.getElementById('fieldName').addEventListener('input', function(e){ var 
 document.getElementById('fieldNumber').addEventListener('input', function(e){ var v = e.target.value.replace(/\D/g, '').slice(0, 2); if (v !== e.target.value) e.target.value = v; updatePriceTotal(); });
 document.getElementById('fieldPatch1').addEventListener('input', updatePriceTotal);
 document.getElementById('fieldPatch2').addEventListener('input', updatePriceTotal);
-document.getElementById('mysteryOpenBtn').addEventListener('click', openMysteryModal);
+document.getElementById('modalClose').addEventListener('click', function(){ document.getElementById('modalOverlay').classList.remove('show'); }); document.getElementById('modalOverlay').addEventListener('click', function(e){ if (e.target.id === 'modalOverlay') e.target.classList.remove('show'); }); document.getElementById('mysteryOpenBtn').addEventListener('click', openMysteryModal);
 document.getElementById('mysteryConfirm').addEventListener('click', confirmMystery);
 document.getElementById('mysteryModal').addEventListener('click', function(e){ if (e.target.id === 'mysteryModal') e.target.classList.remove('show'); });
 document.getElementById('parlukiNextBtn').addEventListener('click', parlukiNextStep);
