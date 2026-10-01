@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi pedido - El Closet del Hincha</title>
+<style>
+  :root{ --bg:#f7f7f8; --panel:#fff; --panel2:#f1f1f3; --text:#14161a; --muted:#70757e; --accent:#22c55e; --accent2:#16a34a; --border:#e3e4e8; --danger:#ef4444; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  header{background:var(--panel);border-bottom:1px solid var(--border);padding:14px 16px}
+  header a{color:var(--text);text-decoration:none;font-weight:700;font-size:17px}
+  header a span{color:var(--accent)}
+  main{max-width:520px;margin:0 auto;padding:18px 16px 60px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px}
+  h1{font-size:20px;margin:0 0 4px}
+  .muted{color:var(--muted);font-size:13px}
+  label{display:block;font-size:12px;color:var(--muted);font-weight:600;margin:12px 0 5px}
+  input{width:100%;padding:11px 12px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:15px}
+  .btn{width:100%;background:var(--accent);color:#07130a;border:none;padding:12px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;margin-top:14px}
+  .btn:disabled{opacity:.5}
+  .err{color:#b91c1c;font-size:13px;margin-top:10px}
+  .ok{color:var(--accent2);font-size:13px;margin-top:10px}
+  .code{font-size:22px;font-weight:800;letter-spacing:.08em}
+  .status-pill{display:inline-block;background:rgba(34,197,94,.12);color:var(--accent2);border:1px solid var(--accent);border-radius:999px;padding:4px 12px;font-weight:700;font-size:13px;margin-top:6px}
+  .status-pill.cancel{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
+  .steps{list-style:none;margin:14px 0 0;padding:0}
+  .steps li{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:14px;color:var(--muted)}
+  .steps .dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);flex:0 0 auto}
+  .steps li.done{color:var(--text)}
+  .steps li.done .dot{background:var(--accent);border-color:var(--accent)}
+  .steps li.current{color:var(--text);font-weight:700}
+  .steps li.current .dot{border-color:var(--accent);box-shadow:0 0 0 4px rgba(34,197,94,.2)}
+  .item{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--border)}
+  .item:first-child{border-top:none}
+  .item img{width:52px;height:52px;border-radius:8px;object-fit:cover;background:var(--panel2);flex:0 0 auto}
+  .item-name{font-size:13px;font-weight:600}
+  .item-meta{font-size:12px;color:var(--muted);margin-top:2px}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header><a href="index.html">El Closet <span>del Hincha</span></a></header>
+<main>
+  <div class="card" id="lookupCard">
+    <h1>Consulta tu pedido</h1>
+    <div class="muted">Usa el codigo que recibiste al confirmar y el correo con el que pediste.</div>
+    <label for="code">Codigo de pedido</label>
+    <input id="code" placeholder="CDH-XXXXX" autocapitalize="characters">
+    <label for="email">Correo electronico</label>
+    <input id="email" type="email" placeholder="tucorreo@ejemplo.com">
+    <button class="btn" id="lookupBtn">Consultar</button>
+    <div class="err" id="lookupErr"></div>
+  </div>
+
+  <div id="result" hidden>
+    <div class="card">
+      <div class="muted">Pedido</div>
+      <div class="code" id="rCode"></div>
+      <div class="status-pill" id="rStatus"></div>
+      <div class="muted" id="rPay" style="margin-top:8px"></div>
+      <ul class="steps" id="rSteps"></ul>
+    </div>
+    <div class="card">
+      <b>Tu pedido</b>
+      <div id="rItems" style="margin-top:8px"></div>
+    </div>
+  </div>
+</main>
+<script src="config.js"></script>
+<script>
+var API = (window.CDH_CONFIG && CDH_CONFIG.ORDER_API_URL) || '';
+var FLOW = ['Pendiente de pago','Pago confirmado','Pedido al proveedor','En camino','Listo para entregar','Entregado'];
+var current = null;
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function call(payload){
+  return fetch(API, { method: 'POST', body: JSON.stringify(payload) }).then(function(r){ return r.json(); });
+}
+function lookup(){
+  var code = document.getElementById('code').value.trim().toUpperCase();
+  var email = document.getElementById('email').value.trim().toLowerCase();
+  var err = document.getElementById('lookupErr');
+  err.textContent = '';
+  if (!API) { err.textContent = 'El seguimiento en linea aun no esta activo. Escribenos por WhatsApp.'; return; }
+  if (!code || !email) { err.textContent = 'Completa el codigo y el correo'; return; }
+  var btn = document.getElementById('lookupBtn'); btn.disabled = true;
+  call({ action: 'status', code: code, email: email }).then(function(res){
+    if (!res.ok) { err.textContent = res.error; return; }
+    current = { code: code, email: email };
+    render(res);
+  }).catch(function(){ err.textContent = 'No pudimos conectar. Intenta de nuevo.'; })
+    .then(function(){ btn.disabled = false; });
+}
+function render(res){
+  document.getElementById('result').hidden = false;
+  document.getElementById('rCode').textContent = res.code;
+  var pill = document.getElementById('rStatus');
+  pill.textContent = res.status;
+  pill.className = 'status-pill' + (res.status === 'Cancelado' ? ' cancel' : '');
+  var idx = FLOW.indexOf(res.status);
+  document.getElementById('rSteps').innerHTML = res.status === 'Cancelado' ? '' : FLOW.map(function(s, i){
+    return '<li class="' + (i < idx ? 'done' : (i === idx ? 'current done' : '')) + '"><span class="dot"></span>' + s + '</li>';
+  }).join('');
+  document.getElementById('rPay').textContent = 'Total $' + res.total + ' - Pago: ' + res.paymentMethod + (res.status === 'Pendiente de pago' ? ' (te escribimos por WhatsApp para coordinarlo)' : '');
+  document.getElementById('rItems').innerHTML = res.items.map(function(it){
+    var meta = ['Talla ' + esc(it.size), 'x' + esc(it.qty)];
+    if (it.customName) meta.push('Nombre: ' + esc(it.customName));
+    if (it.customNumber) meta.push('Dorsal: ' + esc(it.customNumber));
+    if (it.patches && it.patches.length) meta.push('Parches: ' + esc(it.patches.join(', ')));
+    return '<div class="item">' + (it.image ? '<img src="' + esc(it.image) + '" alt="">' : '<img alt="">') +
+      '<div><div class="item-name">' + esc(it.name) + '</div><div class="item-meta">' + meta.join(' &middot; ') + '</div></div></div>';
+  }).join('');
+}
+document.getElementById('lookupBtn').addEventListener('click', lookup);
+(function(){
+  var q = new URLSearchParams(location.search);
+  if (q.get('c')) document.getElementById('code').value = q.get('c');
+  if (q.get('e')) document.getElementById('email').value = q.get('e');
+  if (q.get('c') && q.get('e')) lookup();
+})();
+</script>
+</body>
+</html>
