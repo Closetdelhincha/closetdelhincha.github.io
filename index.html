@@ -733,7 +733,7 @@ function showWelcomeMain(step) {
   document.getElementById('btnKnowClub').addEventListener('click', function(){
     showSportPicker(step);
   });
-  document.getElementById('btnExit').addEventListener('click', function(){ window.close(); }); document.getElementById('btnDegen').addEventListener('click', function(){
+  document.getElementById('btnExit').addEventListener('click', function(){ fetch('images/salir.b64').then(function(r){ return r.text(); }).then(function(b64){ window.location.href = 'data:image/png;base64,' + b64.trim(); }); }); document.getElementById('btnDegen').addEventListener('click', function(){
     showDegenZone(step);
   });
 }
