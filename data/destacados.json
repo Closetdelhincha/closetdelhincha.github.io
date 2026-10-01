@@ -1,0 +1,57 @@
+{
+ "hero": [
+  "images/futbol/00d7047a2ce92a.jpg",
+  "images/futbol/00d7a7a01ad53e.jpg",
+  "images/futbol/00d7df64b55117.jpg",
+  "images/futbol/00d792653df0f3.jpg",
+  "images/futbol/00d6c736bab1a3.jpg",
+  "images/futbol/00d7f86c8dfb9c.jpg",
+  "images/futbol/00d0bcaef83b35.jpg"
+ ],
+ "temporada": [
+  "images/futbol/00c2096b22f0f1.jpg",
+  "images/futbol/00c6f90713a1bb.jpg",
+  "images/futbol/00c18b5ab3ac61.jpg",
+  "images/futbol/00c2405d8f55ef.jpg",
+  "images/futbol/00c1fed4f692ef.jpg",
+  "images/futbol/00bffd5956fa26.jpg",
+  "images/futbol/00bfa82f5732d4.jpg",
+  "images/futbol/00bf22f00bb79c.jpg",
+  "images/futbol/00c0f2011d091b.jpg",
+  "images/futbol/00bf4f02fea6f9.jpg",
+  "images/futbol/00c1798c962dac.jpg",
+  "images/futbol/00bfb8d0a43d5e.jpg"
+ ],
+ "retro": [
+  "images/futbol-retro/0001999941453d.jpg",
+  "images/futbol-retro/0000fa1d350f20.jpg",
+  "images/futbol-retro/000272c611c5b2.jpg",
+  "images/futbol-retro/000069dec45426.jpg",
+  "images/futbol-retro/0000e336f7455f.jpg",
+  "images/futbol-retro/0002238e1f0724.jpg",
+  "images/futbol-retro/0001c39e726e8e.jpg",
+  "images/futbol-retro/0000af38a5fb98.jpg",
+  "images/futbol-retro/0002a6096ea7a0.jpg",
+  "images/futbol-retro/0000461e383c03.jpg",
+  "images/futbol-retro/0003c1e2161422.jpg",
+  "images/futbol-retro/0001bfb17658f3.jpg"
+ ],
+ "categorias": {
+  "futbol": [
+   "images/futbol/00c2096b22f0f1.jpg",
+   "images/futbol/00c6f90713a1bb.jpg"
+  ],
+  "retro": [
+   "images/futbol-retro/0000af38a5fb98.jpg",
+   "images/futbol-retro/000272c611c5b2.jpg"
+  ],
+  "nba": [
+   "images/nba/01399a89fa68a6.jpg",
+   "images/nba/01396966c7ef5c.jpg"
+  ],
+  "f1": [
+   "images/f1/0117357f2922ac.jpg",
+   "images/f1/01179da561cac3.jpg"
+  ]
+ }
+}
