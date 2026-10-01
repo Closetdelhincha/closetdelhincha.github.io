@@ -4,21 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>El Closet del Hincha</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,800;1,800;1,900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#f7f7f8; --panel:#ffffff; --panel2:#f1f1f3; --text:#14161a; --muted:#70757e;
-    --accent:#b3123f; --accent2:#8a0f31; --border:#e3e4e8; --danger:#ef4444;
+    --accent:#22c55e; --accent2:#16a34a; --border:#e3e4e8; --danger:#ef4444;
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
-  header{position:sticky;top:0;z-index:20;background:var(--accent);color:#fff;border-bottom:1px solid var(--accent2);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;--panel2:rgba(255,255,255,.16);--border:rgba(255,255,255,.35);--text:#ffffff;--muted:rgba(255,255,255,.75)}
+  header{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .header-left{display:flex;align-items:center;gap:12px}
   .burger-btn{background:var(--panel2);border:1px solid var(--border);color:var(--text);width:40px;height:40px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;flex:0 0 auto}
   .burger-btn span{display:block;width:18px;height:2px;background:var(--text);border-radius:2px}
   header h1{font-size:17px;margin:0;white-space:nowrap}
-  header h1 span{color:#f2c14e}
+  header h1 span{color:var(--accent)}
   .cart-btn{position:relative;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:10px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:6px;flex:0 0 auto}
-  .cart-count{background:var(--accent);color:#fff;border-radius:999px;font-size:12px;font-weight:700;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+  .cart-count{background:var(--accent);color:#07130a;border-radius:999px;font-size:12px;font-weight:700;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;padding:0 5px}
 
   .toolbar{padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
   .active-filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
@@ -28,13 +30,13 @@
 
   .sport-row{display:flex;gap:8px;margin-bottom:14px}
   .sport-btn{flex:1;padding:11px 6px;border-radius:10px;border:2px solid var(--border);background:var(--panel2);color:var(--muted);font-size:14px;font-weight:700;cursor:pointer;text-align:center}
-  .sport-btn.active{border-color:var(--accent);background:rgba(179,18,63,.10);color:var(--accent)}
+  .sport-btn.active{border-color:var(--accent);background:rgba(34,197,94,.12);color:var(--accent)}
   .side-filters input[type=search]{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:15px;margin-bottom:14px}
   .side-filters input[type=search]::placeholder{color:var(--muted)}
   .filter-label{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin:0 0 8px}
   .chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
   .chip{flex:0 0 auto;background:var(--panel2);border:1px solid var(--border);color:var(--muted);padding:7px 13px;border-radius:999px;font-size:13px;cursor:pointer;white-space:nowrap}
-  .chip.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+  .chip.active{background:var(--accent);color:#07130a;border-color:var(--accent);font-weight:600}
   .team-select{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:14px}
   main{padding:14px 16px 100px}
   .result-count{color:var(--muted);font-size:13px;margin:4px 0 12px}
@@ -42,24 +44,16 @@
   @media(min-width:640px){.grid{grid-template-columns:repeat(3,1fr)}}
   @media(min-width:900px){.grid{grid-template-columns:repeat(4,1fr)}}
   @media(min-width:1200px){.grid{grid-template-columns:repeat(5,1fr)}}
-  .catalog-hero{position:relative;overflow:hidden;border-radius:18px;margin-bottom:16px;min-height:170px;background-image:url('https://cdn.pixabay.com/photo/2016/11/29/02/05/audience-1866738_1280.jpg');background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;text-align:center}
-  .catalog-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,10,14,.45),rgba(20,10,14,.82));z-index:0}
-  .catalog-hero-inner{position:relative;z-index:1;padding:22px 18px;color:#fff}
-  .catalog-hero h2{margin:0 0 6px;font-size:25px;font-weight:800;text-transform:uppercase;letter-spacing:.02em;text-shadow:0 2px 10px rgba(0,0,0,.5)}
-  .catalog-hero p{margin:0;font-size:12px;opacity:.9;text-transform:uppercase;letter-spacing:.09em;font-weight:700}
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 1px 2px rgba(20,22,26,.05);transition:transform .12s ease}
-  .card:active{transform:scale(.97)}
-  .card-img-wrap{position:relative}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
   .card img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#f1f1f3;display:block}
-  .card-badge{position:absolute;top:8px;left:8px;background:rgba(20,22,26,.82);color:#fff;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:4px 9px;border-radius:999px}
-  .card-body{padding:11px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
-  .card-name{font-size:13px;font-weight:700;line-height:1.3;min-height:34px;color:var(--text)}
+  .card-body{padding:10px 10px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .card-league{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--accent);font-weight:700}
+  .card-name{font-size:13px;font-weight:600;line-height:1.3;min-height:34px}
+  .card-price{color:var(--accent);font-weight:700;font-size:15px}
   .card-tags{display:flex;flex-wrap:wrap;gap:4px}
-  .tag{font-size:9px;color:var(--muted);background:var(--panel2);padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:.03em}
-  .card-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:4px}
-  .card-price{color:var(--accent);font-weight:800;font-size:16px}
-  .add-btn{background:var(--text);color:#fff;border:none;padding:8px 14px;border-radius:999px;font-weight:700;font-size:11px;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;flex:0 0 auto}
-  .add-btn:active{background:var(--accent)}
+  .tag{font-size:10px;color:var(--muted);background:var(--panel2);padding:2px 7px;border-radius:999px}
+  .add-btn{margin-top:auto;background:var(--accent);color:#07130a;border:none;padding:9px;border-radius:9px;font-weight:700;font-size:13px;cursor:pointer}
+  .add-btn:active{background:var(--accent2)}
   .empty{text-align:center;color:var(--muted);padding:60px 20px}
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:29;display:none}
   .overlay.show{display:block}
@@ -87,7 +81,7 @@
   .side-drawer.show{transform:translateX(0)}
   .side-filters{flex:1;overflow-y:auto;padding:16px}
   .side-drawer .drawer-foot{padding:16px;border-top:1px solid var(--border)}
-  .apply-btn{width:100%;background:var(--accent);color:#fff;border:none;padding:13px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer}
+  .apply-btn{width:100%;background:var(--accent);color:#07130a;border:none;padding:13px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer}
 
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:39;display:none;align-items:flex-end;justify-content:center}
   #mysteryModal, #parlukiModal{background:#000}
@@ -96,11 +90,11 @@
   .modal h3{margin:0 0 12px;font-size:16px}
   .size-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
   .size-btn{padding:9px 16px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);color:var(--text);cursor:pointer;font-size:14px}
-  .size-btn.sel{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+  .size-btn.sel{background:var(--accent);color:#07130a;border-color:var(--accent);font-weight:700}
   .field-label{font-size:12px;color:var(--muted);margin:14px 0 6px;font-weight:600}
   .modal input[type=text], .modal textarea{width:100%;padding:11px 12px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:14px;font-family:inherit}
   .modal textarea{min-height:60px;resize:vertical}
-  .modal-confirm{width:100%;background:var(--accent);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;margin-top:16px}
+  .modal-confirm{width:100%;background:var(--accent);color:#07130a;border:none;padding:12px;border-radius:10px;font-weight:700;cursor:pointer;margin-top:16px}
   .price-total{font-size:19px;font-weight:800;color:var(--accent);text-align:center;margin-top:14px}
   .price-total small{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
   .mystery-card{display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(135deg,#7f1d1d,#dc2626);border-radius:14px;padding:14px 16px;margin-bottom:14px;color:#fff}
@@ -123,13 +117,13 @@
   .parluki-step-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-size:16px;font-weight:700;cursor:pointer;line-height:1}
   .parluki-score-val{font-size:26px;font-weight:800;min-width:26px;text-align:center}
   .parluki-dash{font-size:22px;font-weight:800;color:var(--muted)}
-  .parluki-next-btn{width:100%;background:var(--accent);color:#fff;border:none;padding:13px;border-radius:10px;font-weight:800;cursor:pointer;margin-top:16px;font-size:15px}
-  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:10px 18px;border-radius:10px;font-weight:600;font-size:14px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
+  .parluki-next-btn{width:100%;background:var(--accent);color:#07130a;border:none;padding:13px;border-radius:10px;font-weight:800;cursor:pointer;margin-top:16px;font-size:15px}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--accent);color:#07130a;padding:10px 18px;border-radius:10px;font-weight:600;font-size:14px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
   .toast.show{opacity:1}
   footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
 
   .welcome-overlay{position:fixed;inset:0;background:radial-gradient(circle at 50% 20%, #1a2332, #0a0c10 70%);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;opacity:1;transition:opacity .35s ease;overflow-y:auto}
-  .welcome-overlay{--panel:#14161a; --panel2:#1f2128; --text:#f4f4f5; --muted:#a3a7b0; --border:#33353c; color:#f4f4f5;}
+  .welcome-overlay{--panel:#14161a; --panel2:#1f2128; --text:#f4f4f5; --muted:#a3a7b0; --border:#33353c;}
   .welcome-overlay.hide{opacity:0;pointer-events:none}
   .welcome-overlay.degen-bg{background:#000}
   .welcome-card{max-width:460px;width:100%;text-align:center;animation:welcomeIn .6s cubic-bezier(.2,.9,.3,1.2);margin:auto}
@@ -143,7 +137,7 @@
   .welcome-btns{display:flex;flex-direction:column;gap:12px}
   .welcome-btn{padding:15px;border-radius:12px;border:2px solid var(--border);background:var(--panel2);color:var(--text);font-size:15px;font-weight:700;cursor:pointer;transition:transform .15s,border-color .15s}
   .welcome-btn:active{transform:scale(.97)}
-  .welcome-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .welcome-btn.primary{background:var(--accent);color:#07130a;border-color:var(--accent)}
   .welcome-btn.secondary{color:var(--text)}
   .welcome-btn.secondary:hover{border-color:var(--accent)}
   .welcome-btn.degen{background:#dc2626;color:#fff;border-color:#dc2626}
@@ -193,12 +187,10 @@
 .checkout-form input.invalid{border-color:var(--danger)}
 .pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
 .pay-opt{padding:11px 8px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;text-align:center}
-.pay-opt.sel{border-color:var(--accent);background:rgba(179,18,63,.10);color:var(--accent2)}
-.discount-row{display:none;font-size:13px;color:var(--accent);font-weight:600;margin-bottom:4px}
-.discount-row.show{display:flex;justify-content:space-between}
+.pay-opt.sel{border-color:var(--accent);background:rgba(34,197,94,.12);color:var(--accent2)}
 .email-note{font-size:11px;color:var(--muted);margin-top:5px}
 .back-link{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;padding:0;margin-bottom:6px}
-.primary-btn{width:100%;background:var(--accent);color:#fff;border:none;padding:13px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;margin-top:12px}
+.primary-btn{width:100%;background:var(--accent);color:#07130a;border:none;padding:13px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;margin-top:12px}
 .primary-btn:disabled{opacity:.5;cursor:not-allowed}
 .form-error{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;border-radius:9px;padding:9px 12px;font-size:13px;margin-top:10px}
 .success-box{text-align:center;padding:10px 4px}
@@ -206,6 +198,182 @@
 .success-box .pay-info{text-align:left;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:13px;line-height:1.45;margin:14px 0}
 .success-box a{color:var(--accent2);font-weight:600}
 .hp{position:absolute;left:-5000px;width:1px;height:1px;overflow:hidden}
+/* ===================== REDISENO (estilo tienda de camisetas: vinotinto + blanco) ===================== */
+:root{
+  --wine:#b3123f; --wine-2:#8a0f31; --wine-3:#d4365f; --gold:#f2c14e;
+  --bg:#ffffff; --panel:#ffffff; --panel2:#f2f2f4; --text:#121212; --muted:#6b6b72; --border:#e6e6ea;
+  --accent:#b3123f; --accent2:#8a0f31; --on-accent:#ffffff;
+  --display:'Exo 2', 'Arial Black', system-ui, sans-serif;
+  --body:'Inter', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+body{font-family:var(--body);background:var(--bg);-webkit-font-smoothing:antialiased}
+.display,.display-sm{font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;letter-spacing:.01em;line-height:.95;margin:0}
+.display{font-size:clamp(38px,8vw,76px)}
+.display-sm{font-size:clamp(22px,4vw,32px)}
+.center{text-align:center}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.85;margin-bottom:10px}
+
+/* Botones globales en vinotinto (texto blanco) */
+.add-btn,.chip.active,.size-btn.sel,.modal-confirm,.apply-btn,.primary-btn,.cart-count,.toast,.sport-btn.active,.parluki-next-btn{color:#fff!important}
+.add-btn,.modal-confirm,.apply-btn,.primary-btn,.parluki-next-btn{background:var(--wine);border-radius:999px;text-transform:uppercase;letter-spacing:.06em;font-size:12px}
+.add-btn:active,.modal-confirm:active,.primary-btn:active{background:var(--wine-2)}
+.size-btn.sel,.chip.active{background:var(--wine);border-color:var(--wine)}
+.sport-btn.active{background:var(--wine);border-color:var(--wine)}
+.active-chip{border-color:var(--wine);color:var(--wine)}
+.active-chip button{color:var(--wine)}
+.price-total{color:var(--wine)}
+.pay-opt.sel{border-color:var(--wine);background:rgba(179,18,63,.08);color:var(--wine)}
+.success-box a{color:var(--wine)}
+.toast{background:var(--text)}
+.welcome-overlay{--accent:var(--gold)}
+.welcome-btn.primary{background:var(--gold);border-color:var(--gold);color:#2a1a05}
+.closet-logo-text span{color:var(--gold)}
+
+/* Barra de anuncio + header */
+.announce{background:var(--wine-2);color:#f5e6e9;font-size:12px;text-align:center;padding:8px 16px;letter-spacing:.02em}
+.site-header{position:sticky;top:0;z-index:20;display:block;padding:0;background:var(--wine);border:none;color:#fff;box-shadow:0 1px 0 rgba(0,0,0,.15)}
+.hdr-inner{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:10px 16px}
+.icon-btn{background:none;border:none;color:#fff;width:40px;height:40px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.icon-btn:hover{background:rgba(255,255,255,.1)}
+.burger-btn{flex-direction:column;gap:4px}
+.burger-btn span{background:#fff;width:18px}
+.logo{display:flex;align-items:center;gap:9px;color:inherit;text-decoration:none;flex:0 0 auto}
+.logo-mark{font-family:var(--display);font-weight:900;font-style:italic;font-size:15px;background:#fff;color:var(--wine);padding:5px 7px;border-radius:6px;letter-spacing:.02em}
+.logo-text{font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:12px;line-height:1.05;letter-spacing:.04em}
+.main-nav{flex:1;display:none;justify-content:center;gap:4px}
+.nav-link{background:none;border:none;color:#fff;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:9px 11px;border-radius:999px;cursor:pointer;white-space:nowrap;opacity:.9}
+.nav-link:hover,.nav-link.on{opacity:1;background:rgba(255,255,255,.14)}
+.nav-link.nav-degen{color:var(--gold)}
+.hdr-icons{margin-left:auto;display:flex;align-items:center;gap:6px}
+.site-header .cart-btn{background:rgba(255,255,255,.12);border:none;color:#fff;padding:8px 12px;border-radius:999px;gap:7px}
+.site-header .cart-count{background:#fff;color:var(--wine)!important}
+.sub-nav{display:flex;gap:2px;overflow-x:auto;padding:0 10px 8px;scrollbar-width:none}
+.sub-nav::-webkit-scrollbar{display:none}
+@media(min-width:1000px){ .main-nav{display:flex} .sub-nav{display:none} }
+
+/* Hero: el closet */
+.hero{position:relative;height:clamp(440px,62vh,600px);overflow:hidden;background:
+  radial-gradient(120% 80% at 50% 0%,#3b2415 0%,#1d120a 55%,#0d0805 100%);color:#fff}
+.hero-shelf{position:absolute;left:0;right:0;top:0;height:46px;background:linear-gradient(#5c3a22,#3a2416);box-shadow:0 8px 18px rgba(0,0,0,.55)}
+.hero-shelf::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;background:#2a190e}
+.hero-rail{position:absolute;left:0;right:0;top:64px}
+.rail-bar{position:absolute;left:-2%;right:-2%;top:0;height:6px;border-radius:3px;background:linear-gradient(#d9dde2,#8b9096);box-shadow:0 3px 6px rgba(0,0,0,.6)}
+.hangers{display:flex;justify-content:center;gap:clamp(6px,1.4vw,18px);padding:0 2%}
+.hanger{flex:0 0 auto;width:clamp(120px,15vw,190px);display:flex;flex-direction:column;align-items:center;transform-origin:50% 0;animation:swing 5s ease-in-out infinite}
+.hanger:nth-child(2n){animation-delay:-1.4s} .hanger:nth-child(3n){animation-delay:-2.6s}
+@keyframes swing{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
+.hanger svg{display:block;margin-top:-6px}
+.hanger img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:10px;box-shadow:0 18px 30px rgba(0,0,0,.55);background:#ddd;margin-top:-2px}
+.hero-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 34%,rgba(13,8,5,.78) 60%,rgba(13,8,5,.97) 100%)}
+.hero-copy{position:absolute;left:0;right:0;bottom:0;max-width:1280px;margin:0 auto;padding:0 20px 36px}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 22px;border-radius:999px;font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;cursor:pointer;border:2px solid transparent}
+.btn-light{background:#fff;color:var(--wine)}
+.btn-light:hover{background:#f3e8ea}
+.btn-ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.7)}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+@media(max-width:640px){ .hero{height:540px} .hanger{width:29vw} .hanger:nth-child(n+5){display:none} .hangers{justify-content:center;padding:0} .hero-copy{padding-bottom:28px} }
+
+/* Bloques */
+.home{padding:0 0 60px;max-width:1280px;margin:0 auto}
+.block{padding:34px 16px 6px}
+.block-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:16px}
+.see-all{background:none;border:none;color:var(--wine);font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;padding:6px 0;white-space:nowrap}
+.see-all:hover{text-decoration:underline}
+
+/* Carruseles */
+.rail-wrap{position:relative}
+.prod-rail{display:grid;grid-auto-flow:column;grid-auto-columns:clamp(150px,42vw,230px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;scrollbar-width:none}
+.prod-rail::-webkit-scrollbar{display:none}
+.rail-arrow{position:absolute;top:38%;transform:translateY(-50%);z-index:2;width:38px;height:38px;border-radius:50%;border:none;background:#fff;color:var(--text);font-size:26px;line-height:1;box-shadow:0 4px 14px rgba(0,0,0,.18);cursor:pointer;display:none}
+.rail-arrow.prev{left:-8px} .rail-arrow.next{right:-8px}
+@media(min-width:800px){ .rail-arrow{display:block} }
+.pcard{scroll-snap-align:start;cursor:pointer;background:none;border:none;padding:0;text-align:left;color:inherit;font:inherit}
+.pcard-img{aspect-ratio:1/1;background:var(--panel2);border-radius:12px;overflow:hidden}
+.pcard-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s ease}
+.pcard:hover .pcard-img img{transform:scale(1.04)}
+.pcard-name{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-top:9px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pcard-price{font-size:13px;color:var(--muted);margin-top:3px}
+
+/* Categorias */
+.cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:800px){ .cat-grid{grid-template-columns:repeat(4,1fr)} }
+.cat-card{background:none;border:none;padding:0;cursor:pointer;text-align:left;color:inherit;font:inherit}
+.cat-visual{position:relative;aspect-ratio:3/4;border-radius:14px;overflow:hidden;background:radial-gradient(90% 70% at 50% 35%,var(--wine-3) 0%,var(--wine) 45%,#2a0710 100%)}
+.cat-visual img{position:absolute;width:62%;aspect-ratio:1/1;object-fit:cover;border-radius:10px;box-shadow:0 14px 26px rgba(0,0,0,.45);transition:transform .35s ease}
+.cat-visual img:nth-child(1){left:6%;top:14%;transform:rotate(-6deg)}
+.cat-visual img:nth-child(2){right:6%;bottom:12%;transform:rotate(5deg)}
+.cat-card:hover .cat-visual img:nth-child(1){transform:rotate(-9deg) translateY(-4px)}
+.cat-card:hover .cat-visual img:nth-child(2){transform:rotate(8deg) translateY(4px)}
+.cat-label{font-family:var(--display);font-weight:900;font-style:italic;text-transform:uppercase;font-size:16px;margin-top:10px;display:flex;justify-content:space-between;align-items:center}
+.cat-label span{font-family:var(--body);font-style:normal;font-weight:600;font-size:12px;color:var(--muted)}
+
+/* Zona degen */
+.degen{margin:36px 16px 0;border-radius:18px;padding:28px 22px;color:#fff;display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between;
+  background:radial-gradient(80% 140% at 100% 0%,#c0283f 0%,transparent 55%),linear-gradient(120deg,#14040a 0%,var(--wine-2) 60%,var(--wine) 100%)}
+.degen p{margin:10px 0 0;max-width:520px;font-size:14px;line-height:1.5;color:#f2dfe3}
+.degen-btns{display:flex;gap:10px;flex-wrap:wrap}
+.degen .eyebrow{color:var(--gold)}
+
+/* Ligas */
+.leagues .display-sm{margin-bottom:16px}
+.league-row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.league-pill{border:1.5px solid var(--border);background:#fff;border-radius:999px;padding:11px 18px;font-weight:800;font-size:13px;letter-spacing:.02em;cursor:pointer;color:var(--text)}
+.league-pill:hover{border-color:var(--wine);color:var(--wine)}
+
+/* Catalogo completo */
+#catalogo{scroll-margin-top:110px}
+.filters-open-btn{background:#fff;border:1.5px solid var(--text);color:var(--text);border-radius:999px;padding:8px 16px;font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.active-filters{margin-bottom:8px;min-height:0}
+.grid{gap:18px 12px}
+.card{border:none;border-radius:0;background:none}
+.card img{border-radius:12px;background:var(--panel2);cursor:pointer}
+.card-body{padding:9px 0 0;gap:4px}
+.card-league{color:var(--muted)}
+.card-name{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;min-height:28px;line-height:1.3}
+.card-price{color:var(--text);font-size:14px}
+.tag{background:var(--panel2)}
+.add-btn{padding:9px;margin-top:6px}
+
+/* Ver mas */
+.more-wrap{grid-column:1/-1;text-align:center;padding:18px 0 4px}
+.more-btn{background:var(--text);color:#fff}
+.more-btn:hover{background:var(--wine)}
+.more-note{font-size:12px;color:var(--muted);margin-top:8px}
+
+/* Badge de liga sobre la foto (idea del dueno) */
+.card-img-wrap{position:relative}
+.card-badge{position:absolute;top:8px;left:8px;background:rgba(20,22,26,.82);color:#fff;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:4px 9px;border-radius:999px;pointer-events:none}
+
+/* Banner estadio (idea del dueno) */
+.stadium{position:relative;margin:36px 16px 0;border-radius:18px;overflow:hidden;min-height:220px;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;
+  background:#1a0a10 url('https://cdn.pixabay.com/photo/2016/11/29/02/05/audience-1866738_1280.jpg') center/cover no-repeat}
+.stadium::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,10,14,.45),rgba(20,10,14,.85))}
+.stadium-inner{position:relative;padding:28px 18px}
+.stadium .eyebrow{color:var(--gold)}
+
+/* Codigo de hincha */
+.discount-row{display:flex;justify-content:space-between;font-size:13px;color:var(--wine);font-weight:700;margin-bottom:6px}
+
+/* FAQ */
+.faq{max-width:820px;margin:0 auto}
+.faq .display-sm{margin-bottom:14px}
+.faq details{border-bottom:1px solid var(--border);padding:4px 0}
+.faq summary{list-style:none;cursor:pointer;padding:14px 4px;font-weight:700;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-size:20px;color:var(--wine);font-weight:600}
+.faq details[open] summary::after{content:"\2212"}
+.faq details p{margin:0 4px 14px;color:var(--muted);font-size:14px;line-height:1.55}
+.faq a{color:var(--wine);font-weight:700}
+
+/* Footer */
+.site-footer{background:#0f0f10;color:#d9d9de;padding:30px 20px 24px;text-align:left;font-size:13px}
+.foot-inner{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+.site-footer .logo-mark{background:var(--wine);color:#fff}
+.foot-links{display:flex;gap:18px;flex-wrap:wrap}
+.foot-links a{color:#fff;text-decoration:none;font-weight:600}
+.foot-links a:hover{text-decoration:underline}
+.foot-copy{max-width:1280px;margin:18px auto 0;color:#8b8b93;font-size:12px}
 </style>
 </head>
 <body>
@@ -231,18 +399,97 @@
   </div>
 </div>
 
-<header>
-  <div class="header-left">
-    <button class="burger-btn" id="burgerBtn" aria-label="Filtros"><span></span><span></span><span></span></button>
-    <h1>El Closet <span>del Hincha</span></h1>
+<div class="announce">Camisetas con tu nombre, dorsal y parches &middot; Pagas por Zelle, USDT, Pago M&oacute;vil o efectivo</div>
+<header class="site-header" id="siteHeader">
+  <div class="hdr-inner">
+    <button class="icon-btn burger-btn" id="burgerBtn" aria-label="Filtros"><span></span><span></span><span></span></button>
+    <a class="logo" href="#" id="logoLink"><span class="logo-mark">ECH</span><span class="logo-text">El Closet<br>del Hincha</span></a>
+    <nav class="main-nav" id="mainNav" aria-label="Categorias"></nav>
+    <div class="hdr-icons">
+      <button class="icon-btn" id="searchBtn" aria-label="Buscar"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+      <button class="cart-btn" id="cartBtn" aria-label="Carrito"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 016 0"/></svg><span class="cart-count" id="cartCount">0</span></button>
+    </div>
   </div>
-  <button class="cart-btn" id="cartBtn">Carrito <span class="cart-count" id="cartCount">0</span></button>
+  <nav class="sub-nav" id="subNav" aria-label="Categorias"></nav>
 </header>
 
-<div class="toolbar">
-  <div class="active-filters" id="activeFilters"></div>
-  <button class="filters-open-btn" id="filtersOpenBtn2">Filtros</button>
-</div>
+<section class="hero" id="hero">
+  <div class="hero-shelf"></div>
+  <div class="hero-rail"><div class="rail-bar"></div><div class="hangers" id="heroHangers"></div></div>
+  <div class="hero-shade"></div>
+  <div class="hero-copy">
+    <div class="eyebrow">+6.000 camisetas de f&uacute;tbol, NBA y F1</div>
+    <h2 class="display">Arma tu<br>closet de hincha</h2>
+    <div class="hero-btns">
+      <a class="btn btn-light" href="#catalogo" id="heroShop">Ver cat&aacute;logo</a>
+      <button class="btn btn-ghost" id="heroMystery">Camiseta misterio $25</button>
+    </div>
+  </div>
+</section>
+
+<main class="home">
+  <section class="block">
+    <div class="block-head"><h2 class="display-sm">Temporada actual</h2><button class="see-all" data-quick="temporada">Ver todo</button></div>
+    <div class="rail-wrap"><button class="rail-arrow prev" aria-label="Anterior">&#8249;</button><div class="prod-rail" id="railTemporada"></div><button class="rail-arrow next" aria-label="Siguiente">&#8250;</button></div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2 class="display-sm">Compra por categor&iacute;a</h2></div>
+    <div class="cat-grid" id="catGrid"></div>
+  </section>
+
+  <section class="degen" id="mysteryCard">
+    <div class="degen-copy">
+      <div class="eyebrow">Zona del Degen</div>
+      <h2 class="display-sm">&iquest;Te la juegas?</h2>
+      <p>Camiseta misterio: eliges la talla, el closet elige la camiseta. O acierta 3 resultados del finde y ll&eacute;vate una gratis.</p>
+    </div>
+    <div class="degen-btns">
+      <button class="btn btn-light" id="mysteryOpenBtn">Camiseta misterio $25</button>
+      <button class="btn btn-ghost" id="parlukiOpenBtn">Jugar Parluki</button>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><h2 class="display-sm">Cl&aacute;sicos retro</h2><button class="see-all" data-quick="retro">Ver todo</button></div>
+    <div class="rail-wrap"><button class="rail-arrow prev" aria-label="Anterior">&#8249;</button><div class="prod-rail" id="railRetro"></div><button class="rail-arrow next" aria-label="Siguiente">&#8250;</button></div>
+  </section>
+
+  <section class="stadium">
+    <div class="stadium-inner">
+      <div class="eyebrow">El Closet del Hincha</div>
+      <h2 class="display">La pasi&oacute;n del f&uacute;tbol<br>en tu piel</h2>
+    </div>
+  </section>
+
+  <section class="block leagues">
+    <h2 class="display-sm center">Ligas populares</h2>
+    <div class="league-row" id="leagueRow"></div>
+  </section>
+
+  <section class="block" id="catalogo">
+    <div class="block-head"><h2 class="display-sm" id="catalogTitle">Todo el closet</h2><button class="filters-open-btn" id="filtersOpenBtn2">Filtros</button></div>
+    <div class="active-filters" id="activeFilters"></div>
+    <div class="result-count" id="resultCount"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="block faq">
+    <h2 class="display-sm center">Preguntas frecuentes</h2>
+    <details><summary>&iquest;C&oacute;mo pago?</summary><p>Al confirmar tu pedido eliges Zelle, USDT, Pago M&oacute;vil o efectivo. Te escribimos por WhatsApp para coordinar el pago. Tu pedido arranca cuando lo confirmamos.</p></details>
+    <details><summary>&iquest;Puedo ponerle mi nombre y mi n&uacute;mero?</summary><p>S&iacute;. Nombre y dorsal suman $2, y cada parche $1 (m&aacute;ximo 2). Las prendas de F1 no se personalizan.</p></details>
+    <details><summary>&iquest;C&oacute;mo s&eacute; en qu&eacute; va mi pedido?</summary><p>Al confirmar recibes un c&oacute;digo (CDH-XXXXX) y un correo. Cada cambio de estatus te llega por correo y lo puedes consultar en <a href="pedido.html">Consultar mi pedido</a>.</p></details>
+    <details><summary>&iquest;No encuentras tu camiseta?</summary><p>Escr&iacute;benos por WhatsApp con el equipo y la temporada que buscas y la conseguimos.</p></details>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="foot-inner">
+    <div class="logo"><span class="logo-mark">ECH</span><span class="logo-text">El Closet<br>del Hincha</span></div>
+    <div class="foot-links"><a href="pedido.html">Consultar mi pedido</a><a href="#" id="footWa">WhatsApp</a><a href="#catalogo">Cat&aacute;logo</a></div>
+  </div>
+  <div class="foot-copy">El Closet del Hincha &middot; F&uacute;tbol, NBA, F1 y m&aacute;s</div>
+</footer>
 
 <div class="overlay" id="sideOverlay"></div>
 <div class="side-drawer" id="sideDrawer">
@@ -259,22 +506,7 @@
   <div class="drawer-foot"><button class="apply-btn" id="applyFiltersBtn">Ver resultados</button></div>
 </div>
 
-<main>
-  <div class="catalog-hero">
-    <div class="catalog-hero-inner">
-      <h2>El Closet del Hincha</h2>
-      <p>La pasion del futbol en tu piel</p>
-    </div>
-  </div>
-  <div class="mystery-card" id="mysteryCard">
-    <div class="mystery-card-text"><b>Camiseta Misterio</b> - $25<br><span>Al azar de todo el catalogo. Vos elegis la talla.</span></div>
-    <button class="mystery-card-btn" id="mysteryOpenBtn">Quiero una</button>
-  </div>
-  <div class="result-count" id="resultCount"></div>
-  <div class="grid" id="grid"></div>
-</main>
 
-<footer>El Closet del Hincha - Futbol, NBA y F1 &middot; <a href="pedido.html" style="color:inherit">Consultar mi pedido</a></footer>
 
 <div class="overlay" id="overlay"></div>
 <div class="drawer" id="drawer">
@@ -282,7 +514,6 @@
   <!-- Paso 1: carrito -->
   <div class="drawer-items checkout-step" id="drawerItems"></div>
   <div class="drawer-foot checkout-step" id="stepCartFoot">
-    <div class="total-row discount-row" id="discountRow1"><span>Descuento FOUNDER</span><span>-$5</span></div>
     <div class="total-row"><span>Total</span><span id="cartTotal">$0</span></div>
     <button class="primary-btn" id="waBtn" style="margin-top:0">Continuar</button>
   </div>
@@ -307,13 +538,14 @@
       <button type="button" class="pay-opt" data-pay="Efectivo">Efectivo</button>
     </div>
     <div class="field-err" id="errPay"></div>
-    <label for="custCode">Codigo de hincha (opcional)</label>
-    <input type="text" id="custCode" placeholder="Codigo (opcional)">
+    <label for="custCode">C&oacute;digo de hincha (opcional)</label>
+    <input type="text" id="custCode" autocomplete="off" autocapitalize="characters" placeholder="Codigo (opcional)">
+    <div class="email-note" id="codeNote"></div>
     <div class="hp" aria-hidden="true"><input type="text" id="hpWebsite" tabindex="-1" autocomplete="off"></div>
     <div id="orderError" class="form-error" hidden></div>
   </div>
   <div class="drawer-foot checkout-step" id="stepDetailsFoot" hidden>
-    <div class="total-row discount-row" id="discountRow2"><span>Descuento FOUNDER</span><span>-$5</span></div>
+    <div class="discount-row" id="discountRow" style="display:none"><span>Descuento c&oacute;digo de hincha</span><span id="discountAmt">-$0</span></div>
     <div class="total-row"><span>Total</span><span id="cartTotal2">$0</span></div>
     <button class="primary-btn" id="submitOrderBtn" style="margin-top:0">Confirmar pedido</button>
   </div>
@@ -438,7 +670,7 @@ function init() {
   Promise.all(CATALOGS.map(function(c){ return loadJSON('data/productos-' + c + '.json'); })).then(function(results){
     var all = [];
     // Clave unica = ruta de la foto. El "id" se repite entre catalogos (ej. un id aparece en NBA y en Futbol Fan con otro precio).
-    results.forEach(function(r, i){ r.forEach(function(p){ p.catalog = CATALOGS[i]; p.uid = p.image; }); all = all.concat(r); });
+    results.forEach(function(r, i){ r.forEach(function(p){ p.catalog = CATALOGS[i]; p.uid = p.image; p.team = fixText(p.team); }); all = all.concat(r); });
     PRODUCTS = all.filter(function(p){ return p.active; });
     PRODUCT_BY_UID = {};
     PRODUCTS.forEach(function(p){ PRODUCT_BY_UID[p.uid] = p; });
@@ -465,8 +697,8 @@ function init() {
       document.getElementById('errPay').textContent = '';
     });
   });
-  document.getElementById('custCode').addEventListener('input', updateCartUI);
   restoreCustomer();
+  document.getElementById('custCode').addEventListener('input', updateCartUI);
   [['custName','errName'],['custPhone','errPhone'],['custEmail','errEmail']].forEach(function(p){
     document.getElementById(p[0]).addEventListener('input', function(e){ e.target.classList.remove('invalid'); document.getElementById(p[1]).textContent = ''; });
   });
@@ -669,6 +901,7 @@ function renderActiveFilters() {
   var box = document.getElementById('activeFilters');
   var chips = [];
   if (activeLeague) chips.push({label: activeLeague, clear: function(){ activeLeague=''; renderSportRow(); renderTagChips(); renderTeamSelect(); render(); renderActiveFilters(); }});
+  if (activeTeams || activeNameRe) chips.push({label: activeTeamsLabel, clear: function(){ activeTeams = null; activeNameRe = null; activeTeamsLabel = ''; render(); }});
   var team = document.getElementById('teamSelect').value;
   if (team) chips.push({label: team, clear: function(){ document.getElementById('teamSelect').value=''; render(); renderActiveFilters(); }});
   if (activeTag) {
@@ -677,7 +910,7 @@ function renderActiveFilters() {
   }
   var q = document.getElementById('searchInput').value.trim();
   if (q) chips.push({label: '"' + q + '"', clear: function(){ document.getElementById('searchInput').value=''; render(); renderActiveFilters(); }});
-  if (chips.length === 0) { box.innerHTML = '<span style="color:var(--muted);font-size:13px">Sin filtros activos</span>'; return; }
+  if (chips.length === 0) { box.innerHTML = ''; return; }
   box.innerHTML = '';
   chips.forEach(function(c, i){
     var el = document.createElement('span');
@@ -695,12 +928,16 @@ function filteredProducts() {
     if (activeLeague && p.league !== activeLeague) return false;
     if (activeTag && p.tags.indexOf(activeTag) === -1) return false;
     if (team && p.team !== team) return false;
+    if (activeTeams && activeTeams.indexOf(p.team) < 0) return false;
+    if (activeNameRe && !activeNameRe.test(p.name)) return false;
     if (q && p.name.toLowerCase().indexOf(q) === -1) return false;
     return true;
   });
 }
 
-function render() {
+var CATALOG_PAGE = 24, catalogLimit = CATALOG_PAGE;
+function render(keepLimit) {
+  if (keepLimit !== true) catalogLimit = CATALOG_PAGE;
   renderActiveFilters();
   var list = filteredProducts();
   document.getElementById('resultCount').textContent = list.length + ' producto' + (list.length===1?'':'s');
@@ -709,31 +946,29 @@ function render() {
     grid.innerHTML = '<div class="empty" style="grid-column:1/-1">No encontramos productos con esos filtros.</div>';
     return;
   }
-  var maxShow = 300;
+  var maxShow = catalogLimit;
   var shown = list.slice(0, maxShow);
   var html = '';
   shown.forEach(function(p){
     var tagsHtml = '';
     p.tags.slice(0,2).forEach(function(t){ tagsHtml += '<span class="tag">' + t + '</span>'; });
     html += '<div class="card">' +
-      '<div class="card-img-wrap">' +
-        '<img src="' + p.image + '" alt="' + p.name + '" loading="lazy">' +
-        '<span class="card-badge">' + p.league + '</span>' +
-      '</div>' +
+      '<div class="card-img-wrap"><img src="' + p.image + '" alt="' + escHtml(p.name) + '" loading="lazy" data-open="' + p.uid + '"><span class="card-badge">' + p.league + '</span></div>' +
       '<div class="card-body">' +
+        '<div class="card-league">' + p.league + (p.team ? ' &middot; ' + escHtml(p.team) : '') + '</div>' +
         '<div class="card-name">' + p.name + '</div>' +
+        '<div class="card-price">$' + p.price + '</div>' +
         '<div class="card-tags">' + tagsHtml + '</div>' +
-        '<div class="card-footer">' +
-          '<div class="card-price">$' + p.price + '</div>' +
-          '<button class="add-btn" data-id="' + p.uid + '">Agregar</button>' +
-        '</div>' +
+        '<button class="add-btn" data-id="' + p.uid + '">Personalizar</button>' +
       '</div></div>';
   });
   grid.innerHTML = html;
   if (list.length > maxShow) {
-    grid.insertAdjacentHTML('beforeend', '<div class="empty" style="grid-column:1/-1">Mostrando ' + maxShow + ' de ' + list.length + '. Afina la busqueda para ver mas.</div>');
+    grid.insertAdjacentHTML('beforeend', '<div class="more-wrap"><button class="btn more-btn" id="moreBtn">Ver m&aacute;s</button><div class="more-note">Mostrando ' + maxShow + ' de ' + list.length + '</div></div>');
+    document.getElementById('moreBtn').addEventListener('click', function(){ catalogLimit += CATALOG_PAGE; render(true); });
   }
   grid.querySelectorAll('.add-btn').forEach(function(btn){ btn.addEventListener('click', function(){ openSizeModal(btn.getAttribute('data-id')); }); });
+  grid.querySelectorAll('[data-open]').forEach(function(img){ img.addEventListener('click', function(){ openSizeModal(img.getAttribute('data-open')); }); });
 }
 
 function isCustomizable(p) { return p.league !== 'F1'; }
@@ -853,15 +1088,12 @@ function cartItemMeta(c) {
 
 function sizeLabel(s) { return ({ '2XL': 'XXL', '3XL': 'XXXL' })[s] || s; }
 
-function cartTotal() { var t = 0; cart.forEach(function(c){ t += c.price * c.qty; }); return t; }
-
-function getFounderDiscount(total) {
-  var el = document.getElementById('custCode');
-  var code = (el ? el.value : '').trim().toUpperCase();
-  return code === 'FOUNDER' ? Math.min(5, total) : 0;
-}
-
-function displayTotal() { var t = cartTotal(); return t - getFounderDiscount(t); }
+function cartSubtotal() { var t = 0; cart.forEach(function(c){ t += c.price * c.qty; }); return t; }
+// Codigos de hincha: deben coincidir con DISCOUNT_CODES en backend/Code.gs (el servidor recalcula el descuento)
+var FAN_CODES = { FOUNDER: 5 };
+function fanCode() { var el = document.getElementById('custCode'); return el ? el.value.trim().toUpperCase() : ''; }
+function getFounderDiscount(subtotal) { var amt = FAN_CODES[fanCode()] || 0; return Math.min(amt, subtotal); }
+function cartTotal() { var sub = cartSubtotal(); return sub - getFounderDiscount(sub); }
 
 function updateCartUI() {
   var count = 0; cart.forEach(function(c){ count += c.qty; });
@@ -898,12 +1130,13 @@ function updateCartUI() {
       b.addEventListener('click', function(){ cart.splice(+b.getAttribute('data-rm'), 1); saveCart(); });
     });
   }
-  var discount = getFounderDiscount(cartTotal());
-  var total = displayTotal();
-  document.getElementById('discountRow1').classList.toggle('show', discount > 0);
-  document.getElementById('discountRow2').classList.toggle('show', discount > 0);
-  document.getElementById('cartTotal').textContent = '$' + total;
-  document.getElementById('cartTotal2').textContent = '$' + total;
+  var sub = cartSubtotal(), disc = getFounderDiscount(sub);
+  document.getElementById('cartTotal').textContent = '$' + sub;
+  document.getElementById('cartTotal2').textContent = '$' + (sub - disc);
+  document.getElementById('discountRow').style.display = disc > 0 ? 'flex' : 'none';
+  document.getElementById('discountAmt').textContent = '-$' + disc;
+  var code = fanCode(), note = document.getElementById('codeNote');
+  note.textContent = !code ? '' : (disc > 0 ? 'Codigo aplicado: -$' + disc : 'Ese codigo no es valido');
   document.getElementById('waBtn').disabled = cart.length === 0;
 }
 
@@ -959,13 +1192,11 @@ function validateCustomerForm() {
 }
 
 function orderPayload(customer) {
-  var code = (document.getElementById('custCode').value || '').trim().toUpperCase();
   return {
     customer: customer,
+    fanCode: fanCode(),
     website: document.getElementById('hpWebsite').value,
     clientTotal: cartTotal(),
-    founderCode: code || null,
-    founderDiscount: getFounderDiscount(cartTotal()),
     items: cart.map(function(c){
       if (c.type === 'parluki') return { type: 'parluki', parlukiHasToken: c.parlukiHasToken, parlukiPicks: c.parlukiPicks };
       if (c.type === 'mystery') return { type: 'mystery', size: c.size, qty: c.qty, mysteryPref: c.mysteryPref, mysteryPick: c.mysteryPick };
@@ -985,9 +1216,9 @@ function whatsappOrderText(code, customer) {
     if (c.patches && c.patches.length) msg += '  Parches: ' + c.patches.join(', ') + '\n';
     if (c.notes) msg += '  Notas: ' + c.notes + '\n';
   });
-  var discount = getFounderDiscount(cartTotal());
-  if (discount > 0) msg += 'Descuento (codigo FOUNDER): -$' + discount + '\n';
-  msg += '\nTotal: $' + displayTotal() + '\nPago: ' + customer.paymentMethod + '\nNombre: ' + customer.name + '\nTelefono: ' + customer.phone;
+  var disc = getFounderDiscount(cartSubtotal());
+  if (disc > 0) msg += 'Descuento (codigo ' + fanCode() + '): -$' + disc + '\n';
+  msg += '\nTotal: $' + cartTotal() + '\nPago: ' + customer.paymentMethod + '\nNombre: ' + customer.name + '\nTelefono: ' + customer.phone;
   return msg;
 }
 
@@ -1023,15 +1254,12 @@ function submitOrder() {
 
 function renderDone(res, customer, waText) {
   var link = 'pedido.html?c=' + encodeURIComponent(res.code) + '&e=' + encodeURIComponent(customer.email);
-  var discount = getFounderDiscount(res.total);
-  var discountNote = discount > 0 ? '<div class="pay-info">Codigo FOUNDER aplicado: descuento de $' + discount + ' a coordinar por WhatsApp.</div>' : '';
   document.getElementById('stepDone').innerHTML =
     '<div class="success-box">' +
       '<div style="font-size:40px">&#9989;</div>' +
       '<div style="color:var(--muted);font-size:13px">Tu codigo de pedido</div>' +
       '<div class="success-code" id="doneCode">' + escHtml(res.code) + '</div>' +
       '<div style="font-size:15px;font-weight:700">Total: $' + res.total + '</div>' +
-      discountNote +
       '<div class="pay-info">Metodo de pago: <b>' + escHtml(res.paymentMethod) + '</b><br>Te escribimos por WhatsApp para coordinar el pago. Tu pedido arranca cuando lo confirmemos.</div>' +
       '<p style="font-size:13px;color:var(--muted);margin:0 0 12px">Te enviamos el resumen a <b>' + escHtml(customer.email) + '</b>. Ahi te mandaremos cada cambio de estatus.</p>' +
       '<button class="wa-btn" id="doneWa">Avisar por WhatsApp</button>' +
@@ -1244,6 +1472,127 @@ document.getElementById('mysteryConfirm').addEventListener('click', confirmMyste
 document.getElementById('mysteryModal').addEventListener('click', function(e){ if (e.target.id === 'mysteryModal') e.target.classList.remove('show'); });
 document.getElementById('parlukiNextBtn').addEventListener('click', parlukiNextStep);
 document.getElementById('parlukiModal').addEventListener('click', function(e){ if (e.target.id === 'parlukiModal') e.target.classList.remove('show'); });
+
+// ===================== Portada (rediseno) =====================
+var activeTeams = null, activeTeamsLabel = '', activeNameRe = null;
+var FEATURED = null;
+var LEAGUES = [
+  { label: 'Premier League', teams: ['Manchester United','Liverpool','Arsenal','Chelsea','Manchester City','Tottenham','Newcastle United','West Ham','Aston Villa','Everton','Fulham','Wolves','Crystal Palace','Brighton','Leeds United'] },
+  { label: 'LaLiga', teams: ['Barcelona','Real Madrid','Atletico Madrid','Real Betis','Valencia','Athletic Bilbao','Celta Vigo','Rayo Vallecano','Sevilla','Villarreal','Real Sociedad'] },
+  { label: 'Serie A', teams: ['AC Milan','Inter de Milan','Juventus','Napoli','AS Roma','Lazio','Fiorentina','Atalanta'] },
+  { label: 'Bundesliga', teams: ['Bayern Munich','Borussia Dortmund','RB Leipzig','Bayer Leverkusen','Schalke 04'] },
+  { label: 'Ligue 1', teams: ['PSG','Marseille','Lyon','Monaco','Lille'] },
+  { label: 'Sudamerica', teams: ['Flamengo','Santos','Corinthians','River Plate','Boca Juniors','Sao Paulo','Palmeiras','Atletico Nacional','Millonarios','Bahia','Atletico Mineiro','Cruzeiro','Fluminense','Gremio','Internacional','Vasco da Gama','Botafogo'] },
+  { label: 'Liga MX', teams: ['Club America','Pumas UNAM','Tigres','Cruz Azul','Chivas','Monterrey','Toluca','Santos Laguna'] },
+  { label: 'Selecciones', teams: ['Brasil','Argentina','España','Alemania','Francia','Italia','Inglaterra','Portugal','Países Bajos','México','Colombia','Uruguay','Japón','Venezuela','Croacia','Bélgica','Marruecos','Senegal','Estados Unidos','Chile','Perú','Ecuador','Paraguay','Corea del Sur','Nigeria','Ghana','Escocia','Gales','Irlanda','Suecia','Noruega','Suiza','Turquía','Costa de Marfil','Camerún','Jamaica','Canadá','Panamá','Arabia Saudita','Egipto','Argelia','Túnez'] }
+];
+var QUICK = {
+  futbol:    { league: 'Futbol', label: 'Futbol' },
+  temporada: { league: 'Futbol', nameRe: /Temporada (25\/26|26\/27)/, label: 'Temporada actual' },
+  retro:     { league: 'Futbol', tag: 'retro', label: 'Retro' },
+  jugador:   { league: 'Futbol', tag: 'jugador', label: 'Version jugador' },
+  ninos:     { league: 'Futbol', tag: 'ninos', label: 'Ninos' },
+  nba:       { league: 'NBA', label: 'NBA' },
+  f1:        { league: 'F1', label: 'F1' },
+  nflmlb:    { league: 'NFL/MLB', label: 'NFL / MLB' }
+};
+var NAV = [['futbol','Futbol'],['temporada','Temporada'],['retro','Retro'],['jugador','Version jugador'],['ninos','Ninos'],['nba','NBA'],['f1','F1'],['nflmlb','NFL/MLB']];
+
+// Repara texto con caracteres rotos (UTF-8 leido como Latin-1), p. ej. "MÃ©xico" -> "México"
+function fixText(s) {
+  s = String(s || '');
+  for (var i = 0; i < 2; i++) {
+    if (!/[À-ÿ]/.test(s)) break;
+    try { s = decodeURIComponent(escape(s)); } catch (e) { break; }
+  }
+  return s;
+}
+
+function applyQuick(o) {
+  o = o || {};
+  activeLeague = o.league || '';
+  activeTag = o.tag || '';
+  activeTeams = o.teams || null;
+  activeTeamsLabel = (o.teams || o.nameRe) ? o.label : '';
+  activeNameRe = o.nameRe || null;
+  document.getElementById('searchInput').value = o.q || '';
+  document.getElementById('teamSelect').value = '';
+  renderSportRow(); renderTagChips(); renderTeamSelect(); render();
+  document.getElementById('catalogTitle').textContent = o.label || 'Todo el closet';
+  document.querySelectorAll('.nav-link').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-quick') === o.key); });
+  var el = document.getElementById('catalogo');
+  if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function quick(key) { var o = QUICK[key]; if (!o) return; o.key = key; applyQuick(o); }
+
+function renderNav() {
+  var html = NAV.map(function(n){ return '<button class="nav-link" data-quick="' + n[0] + '">' + n[1] + '</button>'; }).join('') +
+    '<button class="nav-link nav-degen" data-degen="1">Zona Degen</button>';
+  ['mainNav','subNav'].forEach(function(id){
+    var nav = document.getElementById(id); nav.innerHTML = html;
+    nav.querySelectorAll('[data-quick]').forEach(function(b){ b.addEventListener('click', function(){ quick(b.getAttribute('data-quick')); }); });
+    nav.querySelectorAll('[data-degen]').forEach(function(b){ b.addEventListener('click', function(){ document.getElementById('mysteryCard').scrollIntoView({ behavior: 'smooth', block: 'center' }); }); });
+  });
+}
+
+function pcardHtml(p) {
+  return '<button class="pcard" data-id="' + escHtml(p.uid) + '"><div class="pcard-img"><img src="' + escHtml(p.image) + '" alt="' + escHtml(p.name) + '" loading="lazy"></div>' +
+    '<div class="pcard-name">' + escHtml(p.name) + '</div><div class="pcard-price">$' + p.price + '</div></button>';
+}
+
+function featured(list) { return (list || []).map(function(u){ return PRODUCT_BY_UID[u]; }).filter(Boolean); }
+
+function renderHome() {
+  if (!FEATURED || !dataLoaded) return;
+  var hangerSvg = '<svg width="46" height="34" viewBox="0 0 46 34" fill="none" stroke="#b9bec4" stroke-width="2.4" stroke-linecap="round"><path d="M23 14c0-4 5-4 5-8s-3-5-5-5-4 1-4 3"/><path d="M23 14L3 30h40L23 14z" stroke="#9aa0a6"/></svg>';
+  document.getElementById('heroHangers').innerHTML = featured(FEATURED.hero).map(function(p){
+    return '<div class="hanger">' + hangerSvg + '<img src="' + escHtml(p.image) + '" alt="' + escHtml(p.name) + '"></div>';
+  }).join('');
+  document.getElementById('railTemporada').innerHTML = featured(FEATURED.temporada).map(pcardHtml).join('');
+  document.getElementById('railRetro').innerHTML = featured(FEATURED.retro).map(pcardHtml).join('');
+  var cats = [['futbol','Futbol actual'],['retro','Retro'],['nba','NBA'],['f1','Formula 1']];
+  var counts = {};
+  PRODUCTS.forEach(function(p){
+    if (p.league === 'Futbol') counts.futbol = (counts.futbol||0)+1;
+    if (p.league === 'Futbol' && p.tags.indexOf('retro') >= 0) counts.retro = (counts.retro||0)+1;
+    if (p.league === 'NBA') counts.nba = (counts.nba||0)+1;
+    if (p.league === 'F1') counts.f1 = (counts.f1||0)+1;
+  });
+  document.getElementById('catGrid').innerHTML = cats.map(function(c){
+    var imgs = featured((FEATURED.categorias || {})[c[0]]).slice(0, 2).map(function(p){ return '<img src="' + escHtml(p.image) + '" alt="" loading="lazy">'; }).join('');
+    return '<button class="cat-card" data-quick="' + c[0] + '"><div class="cat-visual">' + imgs + '</div><div class="cat-label">' + c[1] + '<span>' + (counts[c[0]] || 0) + '</span></div></button>';
+  }).join('');
+  document.getElementById('leagueRow').innerHTML = LEAGUES.map(function(l, i){ return '<button class="league-pill" data-league-i="' + i + '">' + l.label + '</button>'; }).join('');
+  bindHome();
+}
+
+function bindHome() {
+  document.querySelectorAll('.pcard').forEach(function(b){ b.addEventListener('click', function(){ openSizeModal(b.getAttribute('data-id')); }); });
+  document.querySelectorAll('.cat-card, .see-all').forEach(function(b){ b.addEventListener('click', function(){ quick(b.getAttribute('data-quick')); }); });
+  document.querySelectorAll('.league-pill').forEach(function(b){
+    b.addEventListener('click', function(){ var l = LEAGUES[+b.getAttribute('data-league-i')]; applyQuick({ league: 'Futbol', teams: l.teams, label: l.label }); });
+  });
+}
+
+function initHome() {
+  renderNav();
+  document.querySelectorAll('.rail-wrap').forEach(function(w){
+    var rail = w.querySelector('.prod-rail');
+    w.querySelector('.prev').addEventListener('click', function(){ rail.scrollBy({ left: -rail.clientWidth * 0.8, behavior: 'smooth' }); });
+    w.querySelector('.next').addEventListener('click', function(){ rail.scrollBy({ left: rail.clientWidth * 0.8, behavior: 'smooth' }); });
+  });
+  document.getElementById('searchBtn').addEventListener('click', function(){ openSideDrawer(); setTimeout(function(){ document.getElementById('searchInput').focus(); }, 250); });
+  document.getElementById('logoLink').addEventListener('click', function(e){ e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  document.getElementById('heroShop').addEventListener('click', function(e){ e.preventDefault(); applyQuick({}); });
+  document.getElementById('heroMystery').addEventListener('click', openMysteryModal);
+  document.getElementById('parlukiOpenBtn').addEventListener('click', openParlukiModal);
+  document.getElementById('footWa').setAttribute('href', 'https://wa.me/' + WHATSAPP_NUMBER);
+  document.getElementById('footWa').setAttribute('target', '_blank');
+  loadJSON('data/destacados.json').then(function(d){ FEATURED = (d && d.hero) ? d : { hero: [], temporada: [], retro: [], categorias: {} }; waitForData(renderHome); });
+}
+
+initHome();
 init();
 </script>
 </body>
