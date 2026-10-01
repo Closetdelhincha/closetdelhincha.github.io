@@ -181,6 +181,31 @@
 .closet-tap-hint{position:absolute;bottom:36px;left:0;right:0;text-align:center;color:#c9b691;font-size:13px;opacity:.85;animation:closetPulse 1.8s infinite;z-index:2}
 .closet-intro.opening .closet-tap-hint{opacity:0}
 @keyframes closetPulse{0%,100%{opacity:.4}50%{opacity:.95}}
+/* --- Checkout --- */
+.field-hint{font-size:11px;color:var(--muted);margin-top:5px}
+.field-err{font-size:12px;color:var(--danger);margin-top:5px;min-height:0}
+.print-preview{margin-top:8px;font-size:12px;color:var(--muted)}
+.print-preview b{color:var(--text);letter-spacing:.06em}
+.patch-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.checkout-step[hidden]{display:none}
+.checkout-form label{display:block;font-size:12px;color:var(--muted);font-weight:600;margin:10px 0 5px}
+.checkout-form input{width:100%;padding:11px 12px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:15px;font-family:inherit}
+.checkout-form input.invalid{border-color:var(--danger)}
+.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.pay-opt{padding:11px 8px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;text-align:center}
+.pay-opt.sel{border-color:var(--accent);background:rgba(179,18,63,.10);color:var(--accent2)}
+.discount-row{display:none;font-size:13px;color:var(--accent);font-weight:600;margin-bottom:4px}
+.discount-row.show{display:flex;justify-content:space-between}
+.email-note{font-size:11px;color:var(--muted);margin-top:5px}
+.back-link{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;padding:0;margin-bottom:6px}
+.primary-btn{width:100%;background:var(--accent);color:#fff;border:none;padding:13px;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;margin-top:12px}
+.primary-btn:disabled{opacity:.5;cursor:not-allowed}
+.form-error{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;border-radius:9px;padding:9px 12px;font-size:13px;margin-top:10px}
+.success-box{text-align:center;padding:10px 4px}
+.success-code{font-size:26px;font-weight:800;letter-spacing:.08em;margin:6px 0 2px}
+.success-box .pay-info{text-align:left;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;font-size:13px;line-height:1.45;margin:14px 0}
+.success-box a{color:var(--accent2);font-weight:600}
+.hp{position:absolute;left:-5000px;width:1px;height:1px;overflow:hidden}
 </style>
 </head>
 <body>
@@ -249,20 +274,51 @@
   <div class="grid" id="grid"></div>
 </main>
 
-<footer>El Closet del Hincha - Futbol, NBA y F1 - Pedidos por WhatsApp</footer>
+<footer>El Closet del Hincha - Futbol, NBA y F1 &middot; <a href="pedido.html" style="color:inherit">Consultar mi pedido</a></footer>
 
 <div class="overlay" id="overlay"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-head"><h2>Tu pedido</h2><button class="drawer-close" id="drawerClose">X</button></div>
-  <div class="drawer-items" id="drawerItems"></div>
-  <div class="drawer-foot">
-    <input type="text" id="custName" placeholder="Tu nombre">
-    <input type="tel" id="custPhone" placeholder="Tu telefono (para coordinar)">
-    <input type="text" id="custCode" placeholder="Codigo de hincha (opcional)">
-    <div class="total-row" id="discountRow" style="display:none;font-size:13px;color:var(--accent);font-weight:600;margin-bottom:4px"><span>Descuento FOUNDER</span><span>-$5</span></div>
+  <!-- Paso 1: carrito -->
+  <div class="drawer-items checkout-step" id="drawerItems"></div>
+  <div class="drawer-foot checkout-step" id="stepCartFoot">
+    <div class="total-row discount-row" id="discountRow1"><span>Descuento FOUNDER</span><span>-$5</span></div>
     <div class="total-row"><span>Total</span><span id="cartTotal">$0</span></div>
-    <button class="wa-btn" id="waBtn">Enviar pedido por WhatsApp</button>
+    <button class="primary-btn" id="waBtn" style="margin-top:0">Continuar</button>
   </div>
+  <!-- Paso 2: datos y pago -->
+  <div class="drawer-items checkout-step checkout-form" id="stepDetails" hidden>
+    <button class="back-link" id="backToCart">&larr; Volver al carrito</button>
+    <label for="custName">Nombre y apellido</label>
+    <input type="text" id="custName" autocomplete="name" placeholder="Ej: Gabriel Perez">
+    <div class="field-err" id="errName"></div>
+    <label for="custPhone">Telefono / WhatsApp</label>
+    <input type="tel" id="custPhone" autocomplete="tel" placeholder="Ej: 0414 1234567">
+    <div class="field-err" id="errPhone"></div>
+    <label for="custEmail">Correo electronico</label>
+    <input type="email" id="custEmail" autocomplete="email" placeholder="tucorreo@ejemplo.com">
+    <div class="email-note">Aqui te mandaremos el estatus de tu pedido.</div>
+    <div class="field-err" id="errEmail"></div>
+    <label>Metodo de pago</label>
+    <div class="pay-grid" id="payGrid">
+      <button type="button" class="pay-opt" data-pay="Zelle">Zelle</button>
+      <button type="button" class="pay-opt" data-pay="USDT">USDT</button>
+      <button type="button" class="pay-opt" data-pay="Pago Movil">Pago Movil</button>
+      <button type="button" class="pay-opt" data-pay="Efectivo">Efectivo</button>
+    </div>
+    <div class="field-err" id="errPay"></div>
+    <label for="custCode">Codigo de hincha (opcional)</label>
+    <input type="text" id="custCode" placeholder="Ej: FOUNDER">
+    <div class="hp" aria-hidden="true"><input type="text" id="hpWebsite" tabindex="-1" autocomplete="off"></div>
+    <div id="orderError" class="form-error" hidden></div>
+  </div>
+  <div class="drawer-foot checkout-step" id="stepDetailsFoot" hidden>
+    <div class="total-row discount-row" id="discountRow2"><span>Descuento FOUNDER</span><span>-$5</span></div>
+    <div class="total-row"><span>Total</span><span id="cartTotal2">$0</span></div>
+    <button class="primary-btn" id="submitOrderBtn" style="margin-top:0">Confirmar pedido</button>
+  </div>
+  <!-- Paso 3: confirmacion -->
+  <div class="drawer-items checkout-step" id="stepDone" hidden></div>
 </div>
 
 <div class="modal-overlay" id="modalOverlay">
@@ -270,13 +326,28 @@
     <h3 id="modalTitle">Personaliza tu camiseta</h3>
     <div class="field-label">Talla</div>
     <div class="size-row" id="sizeRow"></div>
-    <div class="field-label">Nombre para la camiseta (opcional)</div>
-    <input type="text" id="fieldName" placeholder="Ej: MESSI">
-    <div class="field-label">Numero (opcional)</div>
-    <input type="text" id="fieldNumber" placeholder="Ej: 10" maxlength="3">
-    <div class="field-label">Parches (opcional)</div>
-    <div class="size-row" id="patchRow"></div>
-    <input type="text" id="fieldPatches" placeholder="Cuales parches? Ej: Champions League, LaLiga" style="margin-top:8px">
+    <div id="customBlock">
+      <div class="field-label">Nombre para la camiseta (opcional, +$2 con dorsal)</div>
+      <input type="text" id="fieldName" placeholder="Ej: MESSI" maxlength="14" autocapitalize="characters">
+      <div class="field-hint">Solo letras, maximo 14. Se estampa tal cual lo escribas.</div>
+      <div class="field-label">Dorsal (opcional)</div>
+      <input type="text" id="fieldNumber" placeholder="Ej: 10" maxlength="2" inputmode="numeric">
+      <div class="print-preview" id="printPreview"></div>
+    </div>
+    <div id="noCustomNote" class="field-hint" hidden>Este producto no se personaliza con nombre, dorsal ni parches.</div>
+    <div id="patchBlock">
+      <div class="field-label">Parches (opcional, +$1 c/u)</div>
+      <div class="patch-grid">
+        <input type="text" id="fieldPatch1" placeholder="Parche 1" list="patchSuggestions" maxlength="40">
+        <input type="text" id="fieldPatch2" placeholder="Parche 2" list="patchSuggestions" maxlength="40">
+      </div>
+      <datalist id="patchSuggestions">
+        <option value="Champions League"><option value="Europa League"><option value="Conference League">
+        <option value="Premier League"><option value="LaLiga"><option value="Serie A"><option value="Bundesliga">
+        <option value="Ligue 1"><option value="Copa Libertadores"><option value="Copa Sudamericana">
+        <option value="Mundial de Clubes"><option value="Campeon del Mundo"><option value="Copa America"><option value="Liga FUTVE">
+      </datalist>
+    </div>
     <div class="field-label">Notas adicionales (opcional)</div>
     <textarea id="fieldNotes" placeholder="Cualquier otro detalle para tu pedido..."></textarea>
     <div class="price-total" id="priceTotal">Total: $0<small>Precio base + personalizacion</small></div>
@@ -308,13 +379,22 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="config.js"></script>
 <script>
-var WHATSAPP_NUMBER = "584242132028";
+var WHATSAPP_NUMBER = (window.CDH_CONFIG && CDH_CONFIG.WHATSAPP_NUMBER) || "584242132028";
+var ORDER_API_URL = (window.CDH_CONFIG && CDH_CONFIG.ORDER_API_URL) || '';
+var CATALOGS = ['futbol','futbol-retro','futbol-jugador','futbol-ninos','futbol-fan','nba','f1','nfl-mlb'];
 var PRODUCTS = [];
-var cart = JSON.parse(localStorage.getItem('cart_hincha') || '[]');
+var PRODUCT_BY_UID = {};
+var CART_KEY = 'cart_hincha_v2';
+var cart = [];
+try { cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]'); } catch(e) { cart = []; }
+try { localStorage.removeItem('cart_hincha'); } catch(e) {}
+var selectedPay = '';
+var submitting = false;
 var activeTag = '';
 var activeLeague = '';
-var pendingProduct = null, pendingSize = null, pendingPatchCount = 0;
+var pendingProduct = null, pendingSize = null;
 var pendingMysterySize = null, pendingMysteryMode = 'ninguno';
 var PARLUKI_DATA = {matches: []};
 var pendingParlukiIndex = 0;
@@ -355,19 +435,13 @@ function loadJSON(url) {
 }
 
 function init() {
-  Promise.all([
-    loadJSON('data/productos-futbol.json'),
-    loadJSON('data/productos-futbol-retro.json'),
-    loadJSON('data/productos-futbol-jugador.json'),
-    loadJSON('data/productos-futbol-ninos.json'),
-    loadJSON('data/productos-futbol-fan.json'),
-    loadJSON('data/productos-nba.json'),
-    loadJSON('data/productos-f1.json'),
-    loadJSON('data/productos-nfl-mlb.json')
-  ]).then(function(results){
+  Promise.all(CATALOGS.map(function(c){ return loadJSON('data/productos-' + c + '.json'); })).then(function(results){
     var all = [];
-    results.forEach(function(r){ all = all.concat(r); });
+    // Clave unica = ruta de la foto. El "id" se repite entre catalogos (ej. un id aparece en NBA y en Futbol Fan con otro precio).
+    results.forEach(function(r, i){ r.forEach(function(p){ p.catalog = CATALOGS[i]; p.uid = p.image; }); all = all.concat(r); });
     PRODUCTS = all.filter(function(p){ return p.active; });
+    PRODUCT_BY_UID = {};
+    PRODUCTS.forEach(function(p){ PRODUCT_BY_UID[p.uid] = p; });
     dataLoaded = true;
     renderSportRow();
     renderTagChips();
@@ -381,7 +455,21 @@ function init() {
   document.getElementById('cartBtn').addEventListener('click', openDrawer);
   document.getElementById('drawerClose').addEventListener('click', closeDrawer);
   document.getElementById('overlay').addEventListener('click', closeDrawer);
-  document.getElementById('waBtn').addEventListener('click', sendWhatsApp);
+  document.getElementById('waBtn').addEventListener('click', goToDetails);
+  document.getElementById('backToCart').addEventListener('click', function(){ showCheckoutStep('cart'); });
+  document.getElementById('submitOrderBtn').addEventListener('click', submitOrder);
+  document.querySelectorAll('#payGrid .pay-opt').forEach(function(b){
+    b.addEventListener('click', function(){
+      selectedPay = b.getAttribute('data-pay');
+      document.querySelectorAll('#payGrid .pay-opt').forEach(function(x){ x.classList.toggle('sel', x === b); });
+      document.getElementById('errPay').textContent = '';
+    });
+  });
+  document.getElementById('custCode').addEventListener('input', updateCartUI);
+  restoreCustomer();
+  [['custName','errName'],['custPhone','errPhone'],['custEmail','errEmail']].forEach(function(p){
+    document.getElementById(p[0]).addEventListener('input', function(e){ e.target.classList.remove('invalid'); document.getElementById(p[1]).textContent = ''; });
+  });
   document.getElementById('modalConfirm').addEventListener('click', confirmAdd);
   document.getElementById('burgerBtn').addEventListener('click', openSideDrawer);
   document.getElementById('filtersOpenBtn2').addEventListener('click', openSideDrawer);
@@ -637,7 +725,7 @@ function render() {
         '<div class="card-tags">' + tagsHtml + '</div>' +
         '<div class="card-footer">' +
           '<div class="card-price">$' + p.price + '</div>' +
-          '<button class="add-btn" data-id="' + p.id + '">Agregar</button>' +
+          '<button class="add-btn" data-id="' + p.uid + '">Agregar</button>' +
         '</div>' +
       '</div></div>';
   });
@@ -648,21 +736,28 @@ function render() {
   grid.querySelectorAll('.add-btn').forEach(function(btn){ btn.addEventListener('click', function(){ openSizeModal(btn.getAttribute('data-id')); }); });
 }
 
-function openSizeModal(id) {
-  pendingProduct = PRODUCTS.find(function(p){ return p.id === id; });
+function isCustomizable(p) { return p.league !== 'F1'; }
+function allowsPatches(p) { return p.league === 'Futbol'; }
+
+function sanitizeName(v) {
+  return v.toUpperCase().replace(/[^A-ZÁÉÍÓÚÑÜ .'\-]/g, '').replace(/\s{2,}/g, ' ').slice(0, 14);
+}
+
+function openSizeModal(uid) {
+  pendingProduct = PRODUCT_BY_UID[uid];
+  if (!pendingProduct) return;
   pendingSize = null;
-  pendingPatchCount = 0;
   document.getElementById('modalTitle').textContent = pendingProduct.name;
-  document.getElementById('fieldName').value = '';
-  document.getElementById('fieldNumber').value = '';
-  document.getElementById('fieldPatches').value = '';
-  document.getElementById('fieldNotes').value = '';
+  ['fieldName','fieldNumber','fieldPatch1','fieldPatch2','fieldNotes'].forEach(function(id){ document.getElementById(id).value = ''; });
+  var custom = isCustomizable(pendingProduct);
+  document.getElementById('customBlock').hidden = !custom;
+  document.getElementById('patchBlock').hidden = !(custom && allowsPatches(pendingProduct));
+  document.getElementById('noCustomNote').hidden = custom;
   var row = document.getElementById('sizeRow');
   var rowHtml = '';
-  var sizeLabels = { '2XL': 'XXL' };
+  var sizeLabels = { '2XL': 'XXL', '3XL': 'XXXL' };
   pendingProduct.sizes.forEach(function(s){
-    var label = sizeLabels[s] || s;
-    rowHtml += '<button class="size-btn" data-size="' + s + '">' + label + '</button>';
+    rowHtml += '<button class="size-btn" data-size="' + s + '">' + (sizeLabels[s] || s) + '</button>';
   });
   row.innerHTML = rowHtml;
   row.querySelectorAll('.size-btn').forEach(function(b){
@@ -672,85 +767,101 @@ function openSizeModal(id) {
       b.classList.add('sel');
     });
   });
-  var prow = document.getElementById('patchRow');
-  var patchOptions = [{n:0,label:'Sin parches'},{n:1,label:'1 parche (+$1)'},{n:2,label:'2 parches (+$2)'}];
-  var phtml = '';
-  patchOptions.forEach(function(o){
-    phtml += '<button class="size-btn' + (o.n===0?' sel':'') + '" data-patches="' + o.n + '">' + o.label + '</button>';
-  });
-  prow.innerHTML = phtml;
-  prow.querySelectorAll('.size-btn').forEach(function(b){
-    b.addEventListener('click', function(){
-      pendingPatchCount = +b.getAttribute('data-patches');
-      prow.querySelectorAll('.size-btn').forEach(function(x){ x.classList.remove('sel'); });
-      b.classList.add('sel');
-      updatePriceTotal();
-    });
-  });
   updatePriceTotal();
   document.getElementById('modalOverlay').classList.add('show');
 }
 
+function currentCustomization() {
+  var p = pendingProduct;
+  var custom = p && isCustomizable(p);
+  var name = custom ? sanitizeName(document.getElementById('fieldName').value).trim() : '';
+  var number = custom ? document.getElementById('fieldNumber').value.replace(/\D/g, '').slice(0, 2) : '';
+  var patches = [];
+  if (custom && allowsPatches(p)) {
+    ['fieldPatch1','fieldPatch2'].forEach(function(id){
+      var v = document.getElementById(id).value.trim();
+      if (v) patches.push(v);
+    });
+  }
+  return { customName: name, customNumber: number, patches: patches };
+}
+
 function calcExtras() {
-  var customName = document.getElementById('fieldName').value.trim();
-  var customNumber = document.getElementById('fieldNumber').value.trim();
-  var extras = 0;
-  if (pendingPatchCount === 1) extras += 1;
-  else if (pendingPatchCount === 2) extras += 2;
-  if (customName || customNumber) extras += 2;
-  return extras;
+  var c = currentCustomization();
+  return ((c.customName || c.customNumber) ? 2 : 0) + c.patches.length;
 }
 
 function updatePriceTotal() {
   if (!pendingProduct) return;
+  var c = currentCustomization();
   var total = pendingProduct.price + calcExtras();
-  document.getElementById('priceTotal').innerHTML = 'Total: $' + total + '<small>Precio base + personalizacion</small>';
+  var detail = 'Base $' + pendingProduct.price;
+  if (c.customName || c.customNumber) detail += ' + nombre/dorsal $2';
+  if (c.patches.length) detail += ' + ' + c.patches.length + ' parche' + (c.patches.length > 1 ? 's' : '') + ' $' + c.patches.length;
+  document.getElementById('priceTotal').innerHTML = 'Total: $' + total + '<small>' + detail + '</small>';
+  var prev = document.getElementById('printPreview');
+  prev.innerHTML = (c.customName || c.customNumber) ? 'Se estampa: <b>' + escHtml(c.customName || '(sin nombre)') + '</b> &middot; <b>' + escHtml(c.customNumber || '(sin dorsal)') + '</b>' : '';
+}
+
+function escHtml(s) { return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+function sameCustomization(a, b) {
+  return a.customName === b.customName && a.customNumber === b.customNumber && a.notes === b.notes &&
+    (a.patches || []).join('|') === (b.patches || []).join('|');
 }
 
 function confirmAdd() {
   if (!pendingSize) { showToast('Elegi una talla'); return; }
-  var customName = document.getElementById('fieldName').value.trim();
-  var customNumber = document.getElementById('fieldNumber').value.trim();
-  var patches = document.getElementById('fieldPatches').value.trim();
-  var notes = document.getElementById('fieldNotes').value.trim();
-  var patchCount = pendingPatchCount;
+  var c = currentCustomization();
+  var notes = document.getElementById('fieldNotes').value.trim().slice(0, 300);
   var unitPrice = pendingProduct.price + calcExtras();
+  var draft = { type: 'product', uid: pendingProduct.uid, catalog: pendingProduct.catalog, image: pendingProduct.image,
+    name: pendingProduct.name, price: unitPrice, size: pendingSize, qty: 1,
+    customName: c.customName, customNumber: c.customNumber, patches: c.patches, notes: notes };
   var existing = null;
-  for (var i=0;i<cart.length;i++) {
-    var c = cart[i];
-    if (c.id === pendingProduct.id && c.size === pendingSize && c.customName === customName && c.customNumber === customNumber && c.patches === patches && c.patchCount === patchCount && c.notes === notes) { existing = c; break; }
+  for (var i = 0; i < cart.length; i++) {
+    var it = cart[i];
+    if (it.type === 'product' && it.uid === draft.uid && it.size === draft.size && sameCustomization(it, draft)) { existing = it; break; }
   }
   if (existing) existing.qty++;
-  else cart.push({
-    id: pendingProduct.id, name: pendingProduct.name, image: pendingProduct.image, price: unitPrice,
-    size: pendingSize, qty: 1, customName: customName, customNumber: customNumber, patches: patches, patchCount: patchCount, notes: notes
-  });
+  else cart.push(draft);
   saveCart();
   document.getElementById('modalOverlay').classList.remove('show');
   showToast('Agregado al carrito');
 }
 
-function saveCart() { localStorage.setItem('cart_hincha', JSON.stringify(cart)); updateCartUI(); }
+function saveCart() { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch(e) {} updateCartUI(); }
 
 function cartItemMeta(c) {
-  if (c.parlukiPicks) {
+  if (c.type === 'parluki') {
     var pkParts = [c.parlukiHasToken ? 'Token ya pago' : 'Incluye token nuevo - $5'];
     c.parlukiPicks.forEach(function(p){ pkParts.push(p.home + ' ' + p.scoreHome + ' - ' + p.scoreAway + ' ' + p.away); });
     return pkParts.join('\n');
   }
-  if (c.mysteryPick) {
-    var mparts = ['Talla ' + c.size + ' - $' + c.price + ' c/u', 'Es sorpresa - se revela al recibir tu pedido'];
-    if (c.notes) mparts.push(c.notes);
+  if (c.type === 'mystery') {
+    var mparts = ['Talla ' + sizeLabel(c.size) + ' - $' + c.price + ' c/u', 'Es sorpresa - se revela al recibir tu pedido'];
+    if (c.mysteryPref) mparts.push(c.mysteryPref);
     return mparts.join('\n');
   }
-  var parts = ['Talla ' + c.size + ' - $' + c.price + ' c/u'];
+  var parts = ['Talla ' + sizeLabel(c.size) + ' - $' + c.price + ' c/u'];
   if (c.customName) parts.push('Nombre: ' + c.customName);
-  if (c.customNumber) parts.push('Numero: ' + c.customNumber);
-  if (c.patchCount) parts.push(c.patchCount + ' parche' + (c.patchCount>1?'s':'') + ' (+$' + c.patchCount + ')' + (c.patches ? ' - ' + c.patches : ''));
-  else if (c.patches) parts.push('Parches: ' + c.patches);
+  if (c.customNumber) parts.push('Dorsal: ' + c.customNumber);
+  if (c.patches && c.patches.length) parts.push('Parches: ' + c.patches.join(', '));
   if (c.notes) parts.push('Notas: ' + c.notes);
   return parts.join('\n');
 }
+
+function sizeLabel(s) { return ({ '2XL': 'XXL', '3XL': 'XXXL' })[s] || s; }
+
+function cartTotal() { var t = 0; cart.forEach(function(c){ t += c.price * c.qty; }); return t; }
+
+function getFounderDiscount(total) {
+  var el = document.getElementById('custCode');
+  var code = (el ? el.value : '').trim().toUpperCase();
+  return code === 'FOUNDER' ? Math.min(5, total) : 0;
+}
+
+function displayTotal() { var t = cartTotal(); return t - getFounderDiscount(t); }
 
 function updateCartUI() {
   var count = 0; cart.forEach(function(c){ count += c.qty; });
@@ -761,16 +872,17 @@ function updateCartUI() {
   } else {
     var html = '';
     cart.forEach(function(c, i){
+      var canQty = c.type !== 'parluki';
       html += '<div class="cart-item">' +
         '<img src="' + c.image + '" alt="">' +
         '<div class="cart-item-info">' +
-          '<div class="cart-item-name">' + c.name + '</div>' +
-          '<div class="cart-item-meta">' + cartItemMeta(c) + '</div>' +
-          '<div class="qty-ctl">' +
+          '<div class="cart-item-name">' + escHtml(c.name) + '</div>' +
+          '<div class="cart-item-meta">' + escHtml(cartItemMeta(c)) + '</div>' +
+          (canQty ? '<div class="qty-ctl">' +
             '<button data-i="' + i + '" data-d="-1">-</button>' +
             '<span>' + c.qty + '</span>' +
             '<button data-i="' + i + '" data-d="1">+</button>' +
-          '</div>' +
+          '</div>' : '') +
           '<button class="cart-item-remove" data-rm="' + i + '">Quitar</button>' +
         '</div></div>';
     });
@@ -778,7 +890,7 @@ function updateCartUI() {
     items.querySelectorAll('[data-d]').forEach(function(b){
       b.addEventListener('click', function(){
         var i = +b.getAttribute('data-i'), d = +b.getAttribute('data-d');
-        cart[i].qty = Math.max(1, cart[i].qty + d);
+        cart[i].qty = Math.max(1, Math.min(20, cart[i].qty + d));
         saveCart();
       });
     });
@@ -786,51 +898,149 @@ function updateCartUI() {
       b.addEventListener('click', function(){ cart.splice(+b.getAttribute('data-rm'), 1); saveCart(); });
     });
   }
-  var total = 0; cart.forEach(function(c){ total += c.price*c.qty; });
-  var discount = getFounderDiscount(total);
-  document.getElementById('discountRow').style.display = discount > 0 ? 'flex' : 'none';
-  document.getElementById('cartTotal').textContent = '$' + (total - discount);
+  var discount = getFounderDiscount(cartTotal());
+  var total = displayTotal();
+  document.getElementById('discountRow1').classList.toggle('show', discount > 0);
+  document.getElementById('discountRow2').classList.toggle('show', discount > 0);
+  document.getElementById('cartTotal').textContent = '$' + total;
+  document.getElementById('cartTotal2').textContent = '$' + total;
   document.getElementById('waBtn').disabled = cart.length === 0;
 }
 
-function getFounderDiscount(total) {
-  var code = (document.getElementById('custCode').value || '').trim().toUpperCase();
-  if (code !== 'FOUNDER') return 0;
-  return Math.min(5, total);
+function showCheckoutStep(step) {
+  var map = { cart: ['drawerItems','stepCartFoot'], details: ['stepDetails','stepDetailsFoot'], done: ['stepDone'] };
+  ['drawerItems','stepCartFoot','stepDetails','stepDetailsFoot','stepDone'].forEach(function(id){
+    document.getElementById(id).hidden = map[step].indexOf(id) < 0;
+  });
+  document.querySelector('#drawer .drawer-head h2').textContent = step === 'details' ? 'Tus datos' : (step === 'done' ? 'Pedido recibido' : 'Tu pedido');
 }
 
-function openDrawer() { document.getElementById('drawer').classList.add('show'); document.getElementById('overlay').classList.add('show'); }
-function closeDrawer() { document.getElementById('drawer').classList.remove('show'); document.getElementById('overlay').classList.remove('show'); }
-
-function sendWhatsApp() {
+function goToDetails() {
   if (cart.length === 0) return;
+  showCheckoutStep('details');
+  document.getElementById('orderError').hidden = true;
+}
+
+function openDrawer() {
+  if (!document.getElementById('stepDone').hidden && cart.length > 0) showCheckoutStep('cart');
+  document.getElementById('drawer').classList.add('show'); document.getElementById('overlay').classList.add('show');
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('show'); document.getElementById('overlay').classList.remove('show');
+  if (!document.getElementById('stepDone').hidden) setTimeout(function(){ showCheckoutStep('cart'); }, 300);
+}
+
+function restoreCustomer() {
+  try {
+    var c = JSON.parse(localStorage.getItem('cdh_customer') || 'null');
+    if (!c) return;
+    document.getElementById('custName').value = c.name || '';
+    document.getElementById('custPhone').value = c.phone || '';
+    document.getElementById('custEmail').value = c.email || '';
+  } catch(e) {}
+}
+
+function validateCustomerForm() {
   var name = document.getElementById('custName').value.trim();
   var phone = document.getElementById('custPhone').value.trim();
-  var msg = 'Hola! Quiero hacer un pedido en El Closet del Hincha:\n\n';
-  var total = 0;
+  var email = document.getElementById('custEmail').value.trim().toLowerCase();
+  var ok = true;
+  function setErr(inputId, errId, msg) {
+    document.getElementById(errId).textContent = msg || '';
+    if (inputId) document.getElementById(inputId).classList.toggle('invalid', !!msg);
+    if (msg) ok = false;
+  }
+  setErr('custName', 'errName', name.length < 2 ? 'Escribe tu nombre' : '');
+  var digits = phone.replace(/\D/g, '');
+  setErr('custPhone', 'errPhone', (digits.length < 7 || digits.length > 15) ? 'Escribe un telefono valido' : '');
+  setErr('custEmail', 'errEmail', !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ? 'Escribe un correo valido' : '');
+  setErr(null, 'errPay', selectedPay ? '' : 'Elige como vas a pagar');
+  return ok ? { name: name, phone: phone, email: email, paymentMethod: selectedPay } : null;
+}
+
+function orderPayload(customer) {
+  var code = (document.getElementById('custCode').value || '').trim().toUpperCase();
+  return {
+    customer: customer,
+    website: document.getElementById('hpWebsite').value,
+    clientTotal: cartTotal(),
+    founderCode: code || null,
+    founderDiscount: getFounderDiscount(cartTotal()),
+    items: cart.map(function(c){
+      if (c.type === 'parluki') return { type: 'parluki', parlukiHasToken: c.parlukiHasToken, parlukiPicks: c.parlukiPicks };
+      if (c.type === 'mystery') return { type: 'mystery', size: c.size, qty: c.qty, mysteryPref: c.mysteryPref, mysteryPick: c.mysteryPick };
+      return { type: 'product', catalog: c.catalog, image: c.image, size: c.size, qty: c.qty, customName: c.customName,
+               customNumber: c.customNumber, patches: c.patches, notes: c.notes };
+    })
+  };
+}
+
+function whatsappOrderText(code, customer) {
+  var msg = 'Hola! ' + (code ? 'Hice el pedido *' + code + '* en El Closet del Hincha.' : 'Quiero hacer un pedido en El Closet del Hincha:') + '\n\n';
   cart.forEach(function(c){
-    if (c.parlukiPicks) {
-      msg += '- ' + c.name + ' - $' + (c.price*c.qty) + (c.parlukiHasToken ? ' (token ya pago)' : ' (incluye token nuevo)') + '\n';
-      c.parlukiPicks.forEach(function(p){ msg += '  ' + p.home + ' ' + p.scoreHome + ' - ' + p.scoreAway + ' ' + p.away + ' (' + p.competition + ')\n'; });
-      total += c.price*c.qty;
-      return;
-    }
-    msg += '- ' + c.name + ' - Talla ' + c.size + ' x' + c.qty + ' - $' + (c.price*c.qty) + '\n';
+    if (c.type === 'parluki') { msg += '- ' + c.name + ' - $' + c.price + '\n'; return; }
+    msg += '- ' + (c.type === 'mystery' ? 'Camiseta Misterio' : c.name) + ' - Talla ' + sizeLabel(c.size) + ' x' + c.qty + ' - $' + (c.price * c.qty) + '\n';
     if (c.customName) msg += '  Nombre: ' + c.customName + '\n';
-    if (c.customNumber) msg += '  Numero: ' + c.customNumber + '\n';
-    if (c.patchCount) msg += '  Parches: ' + c.patchCount + (c.patches ? ' (' + c.patches + ')' : '') + '\n';
-    else if (c.patches) msg += '  Parches: ' + c.patches + '\n';
-    if (c.mysteryPick) msg += '  [SORPRESA] Salio: ' + c.mysteryPick + '\n';
+    if (c.customNumber) msg += '  Dorsal: ' + c.customNumber + '\n';
+    if (c.patches && c.patches.length) msg += '  Parches: ' + c.patches.join(', ') + '\n';
     if (c.notes) msg += '  Notas: ' + c.notes + '\n';
-    total += c.price*c.qty;
   });
-  var discount = getFounderDiscount(total);
+  var discount = getFounderDiscount(cartTotal());
   if (discount > 0) msg += 'Descuento (codigo FOUNDER): -$' + discount + '\n';
-  msg += '\nTotal: $' + (total - discount) + '\n';
-  if (name) msg += '\nNombre: ' + name;
-  if (phone) msg += '\nTelefono: ' + phone;
-  var url = 'https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(msg);
-  window.open(url, '_blank');
+  msg += '\nTotal: $' + displayTotal() + '\nPago: ' + customer.paymentMethod + '\nNombre: ' + customer.name + '\nTelefono: ' + customer.phone;
+  return msg;
+}
+
+function submitOrder() {
+  if (submitting || cart.length === 0) return;
+  var customer = validateCustomerForm();
+  if (!customer) return;
+  try { localStorage.setItem('cdh_customer', JSON.stringify({ name: customer.name, phone: customer.phone, email: customer.email })); } catch(e) {}
+  var errBox = document.getElementById('orderError');
+  errBox.hidden = true;
+  // Sin backend configurado: flujo anterior por WhatsApp (para no romper la tienda mientras instalas el backend)
+  if (!ORDER_API_URL) {
+    window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(whatsappOrderText('', customer)), '_blank');
+    return;
+  }
+  submitting = true;
+  var btn = document.getElementById('submitOrderBtn');
+  btn.disabled = true; btn.textContent = 'Registrando pedido...';
+  fetch(ORDER_API_URL, { method: 'POST', body: JSON.stringify({ action: 'createOrder', order: orderPayload(customer) }) })
+    .then(function(r){ return r.json(); })
+    .then(function(res){
+      if (!res.ok) throw new Error(res.error || 'No se pudo registrar el pedido');
+      var waText = whatsappOrderText(res.code, customer);
+      cart = []; saveCart();
+      renderDone(res, customer, waText);
+    })
+    .catch(function(err){
+      errBox.textContent = (err && err.message && err.message !== 'Failed to fetch') ? err.message : 'No pudimos conectar. Revisa tu internet e intenta de nuevo.';
+      errBox.hidden = false;
+    })
+    .then(function(){ submitting = false; btn.disabled = false; btn.textContent = 'Confirmar pedido'; });
+}
+
+function renderDone(res, customer, waText) {
+  var link = 'pedido.html?c=' + encodeURIComponent(res.code) + '&e=' + encodeURIComponent(customer.email);
+  var discount = getFounderDiscount(res.total);
+  var discountNote = discount > 0 ? '<div class="pay-info">Codigo FOUNDER aplicado: descuento de $' + discount + ' a coordinar por WhatsApp.</div>' : '';
+  document.getElementById('stepDone').innerHTML =
+    '<div class="success-box">' +
+      '<div style="font-size:40px">&#9989;</div>' +
+      '<div style="color:var(--muted);font-size:13px">Tu codigo de pedido</div>' +
+      '<div class="success-code" id="doneCode">' + escHtml(res.code) + '</div>' +
+      '<div style="font-size:15px;font-weight:700">Total: $' + res.total + '</div>' +
+      discountNote +
+      '<div class="pay-info">Metodo de pago: <b>' + escHtml(res.paymentMethod) + '</b><br>Te escribimos por WhatsApp para coordinar el pago. Tu pedido arranca cuando lo confirmemos.</div>' +
+      '<p style="font-size:13px;color:var(--muted);margin:0 0 12px">Te enviamos el resumen a <b>' + escHtml(customer.email) + '</b>. Ahi te mandaremos cada cambio de estatus.</p>' +
+      '<button class="wa-btn" id="doneWa">Avisar por WhatsApp</button>' +
+      '<p style="margin-top:14px;font-size:13px"><a href="' + link + '" target="_blank">Ver estado de mi pedido</a></p>' +
+    '</div>';
+  document.getElementById('doneWa').addEventListener('click', function(){
+    window.open('https://wa.me/' + WHATSAPP_NUMBER + '?text=' + encodeURIComponent(waText), '_blank');
+  });
+  showCheckoutStep('done');
 }
 
 function openMysteryModal() {
@@ -876,7 +1086,14 @@ function openMysteryModal() {
 function confirmMystery() {
   if (!pendingMysterySize) { showToast('Elegi una talla'); return; }
   var teamText = document.getElementById('mysteryTeamInput').value.trim();
-  var pool = PRODUCTS.filter(function(p){ return p.active && (p.league === 'Futbol' || p.league === 'NBA'); });
+  var size = pendingMysterySize;
+  // "Futbol Fan" trae copias mal clasificadas de NBA/F1/Futbol (mismo id). Para el misterio se excluyen esas copias.
+  var idsElsewhere = {};
+  PRODUCTS.forEach(function(p){ if (p.catalog !== 'futbol-fan') idsElsewhere[p.id] = true; });
+  var pool = PRODUCTS.filter(function(p){
+    if (p.catalog === 'futbol-fan' && idsElsewhere[p.id]) return false;
+    return (p.league === 'Futbol' || p.league === 'NBA') && p.sizes && p.sizes.indexOf(size) >= 0;
+  });
   if (pendingMysteryMode === 'incluir' && teamText) {
     pool = pool.filter(function(p){ return p.name.toLowerCase().indexOf(teamText.toLowerCase()) >= 0; });
   } else if (pendingMysteryMode === 'evitar' && teamText) {
@@ -887,11 +1104,11 @@ function confirmMystery() {
   var filterDesc = '';
   if (pendingMysteryMode === 'incluir' && teamText) filterDesc = 'Equipo preferido: ' + teamText;
   else if (pendingMysteryMode === 'evitar' && teamText) filterDesc = 'Evitando: ' + teamText;
+  // La camiseta elegida se guarda para el pedido pero NO se muestra al cliente (ni en el carrito ni en WhatsApp)
   cart.push({
-    id: 'misterio-' + Date.now() + '-' + Math.floor(Math.random()*1000),
-    name: 'Camiseta Misterio', image: MYSTERY_IMG, price: 25,
-    size: pendingMysterySize, qty: 1, customName: '', customNumber: '', patches: '', patchCount: 0,
-    notes: filterDesc, mysteryPick: chosen.name
+    type: 'mystery', uid: 'misterio-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+    name: 'Camiseta Misterio', image: MYSTERY_IMG, price: 25, size: size, qty: 1,
+    mysteryPref: filterDesc, mysteryPick: { catalog: chosen.catalog, image: chosen.image }
   });
   saveCart();
   document.getElementById('mysteryModal').classList.remove('show');
@@ -962,7 +1179,7 @@ function renderParlukiStep() {
   });
   var backEl = document.getElementById('parlukiBack');
   if (backEl) backEl.addEventListener('click', function(){ pendingParlukiIndex--; renderParlukiStep(); });
-  nextBtn.textContent = (pendingParlukiIndex === matches.length - 1) ? 'Enviar prediccion por WhatsApp' : 'Siguiente partido';
+  nextBtn.textContent = (pendingParlukiIndex === matches.length - 1) ? 'Agregar prediccion al carrito' : 'Siguiente partido';
 }
 
 function parlukiNextStep() {
@@ -984,11 +1201,11 @@ function addParlukiToCart() {
     return { home: m.home, away: m.away, competition: m.competition, scoreHome: sc.home, scoreAway: sc.away };
   });
   cart.push({
-    id: 'parluki-' + Date.now() + '-' + Math.floor(Math.random()*1000),
+    type: 'parluki', uid: 'parluki-' + Date.now() + '-' + Math.floor(Math.random()*1000),
     name: 'Parluki - Prediccion de 3 partidos',
     image: PARLUKI_IMG,
     price: pendingParlukiHasToken ? 0 : 5,
-    size: '-', qty: 1, customName: '', customNumber: '', patches: '', patchCount: 0, notes: '',
+    size: '-', qty: 1,
     parlukiHasToken: pendingParlukiHasToken, parlukiPicks: picks
   });
   saveCart();
@@ -1018,9 +1235,10 @@ function openClosetIntro() {
     setTimeout(openClosetIntro, 1500);
   }
 })();
-document.getElementById('fieldName').addEventListener('input', updatePriceTotal);
-document.getElementById('fieldNumber').addEventListener('input', updatePriceTotal);
-document.getElementById('custCode').addEventListener('input', updateCartUI);
+document.getElementById('fieldName').addEventListener('input', function(e){ var v = sanitizeName(e.target.value); if (v !== e.target.value) e.target.value = v; updatePriceTotal(); });
+document.getElementById('fieldNumber').addEventListener('input', function(e){ var v = e.target.value.replace(/\D/g, '').slice(0, 2); if (v !== e.target.value) e.target.value = v; updatePriceTotal(); });
+document.getElementById('fieldPatch1').addEventListener('input', updatePriceTotal);
+document.getElementById('fieldPatch2').addEventListener('input', updatePriceTotal);
 document.getElementById('mysteryOpenBtn').addEventListener('click', openMysteryModal);
 document.getElementById('mysteryConfirm').addEventListener('click', confirmMystery);
 document.getElementById('mysteryModal').addEventListener('click', function(e){ if (e.target.id === 'mysteryModal') e.target.classList.remove('show'); });
