@@ -1196,7 +1196,7 @@ function orderPayload(customer) {
     customer: customer,
     fanCode: fanCode(),
     website: document.getElementById('hpWebsite').value,
-    clientTotal: cartTotal(),
+    clientTotal: cartSubtotal(),
     items: cart.map(function(c){
       if (c.type === 'parluki') return { type: 'parluki', parlukiHasToken: c.parlukiHasToken, parlukiPicks: c.parlukiPicks };
       if (c.type === 'mystery') return { type: 'mystery', size: c.size, qty: c.qty, mysteryPref: c.mysteryPref, mysteryPick: c.mysteryPick };
