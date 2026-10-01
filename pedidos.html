@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Back Office - El Closet del Hincha</title>
+<meta name="robots" content="noindex">
+<style>
+  :root{ --bg:#0f1115; --panel:#171a21; --panel2:#1f232d; --text:#eef1f6; --muted:#9aa3b2; --accent:#22c55e; --accent-dim:#1a7f3f; --border:#2a2f3a; --danger:#ef4444; --warn:#f59e0b; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
+  header{padding:12px 18px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+  header h1{font-size:17px;margin:0}
+  header h1 span{color:var(--accent)}
+  .hbtns{display:flex;gap:8px;flex-wrap:wrap}
+  .btn{background:var(--accent);color:#07130a;border:none;padding:9px 14px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
+  .btn.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+  .btn.small{padding:6px 10px;font-size:12px}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  main{padding:16px 18px 60px;max-width:1280px;margin:0 auto}
+  .tabs{display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border)}
+  .tab{background:none;border:none;color:var(--muted);padding:10px 14px;font-size:14px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab.active{color:var(--text);border-bottom-color:var(--accent)}
+  .tab .badge{background:var(--warn);color:#2a1a00;border-radius:999px;font-size:11px;padding:1px 7px;margin-left:6px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
+  .kpi .l{font-size:12px;color:var(--muted);font-weight:600}
+  .kpi .v{font-size:26px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+  .kpi .s{font-size:12px;color:var(--muted);margin-top:2px}
+  .kpi.alert{border-color:var(--warn)}
+  .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px}
+  .chart{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px}
+  .chart h3{margin:0 0 2px;font-size:14px}
+  .chart .sub{font-size:12px;color:var(--muted);margin-bottom:10px}
+  .hbar{display:grid;grid-template-columns:130px 1fr 64px;align-items:center;gap:8px;font-size:12px;padding:4px 0}
+  .hbar .lab{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .hbar .track{height:14px;position:relative}
+  .hbar .fill{height:14px;background:var(--accent);border-radius:0 4px 4px 0;min-width:2px}
+  .hbar .val{text-align:right;font-variant-numeric:tabular-nums}
+  .hbar:hover .fill{filter:brightness(1.2)}
+  .empty-chart{color:var(--muted);font-size:13px;padding:20px 0;text-align:center}
+  svg text{fill:var(--muted);font-size:10px}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  .toolbar input,.toolbar select{padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:13px}
+  .toolbar input[type=search]{flex:1;min-width:200px}
+  .tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;color:var(--muted);font-weight:600;padding:9px 10px;border-bottom:1px solid var(--border);background:var(--panel);white-space:nowrap}
+  td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+  tr.order-row{cursor:pointer}
+  tr.order-row:hover td{background:#141821}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  td select{padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:12px}
+  .st{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid var(--border);white-space:nowrap}
+  .st.pend{color:var(--muted)}
+  .st.rep{color:var(--warn);border-color:var(--warn)}
+  .st.ok{color:var(--accent);border-color:var(--accent)}
+  .st.cancel{color:var(--danger);border-color:var(--danger)}
+  .detail td{background:#12151b}
+  .items{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+  .it{display:flex;gap:10px;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:8px}
+  .it img{width:64px;height:64px;border-radius:8px;object-fit:cover;background:#000;flex:0 0 auto}
+  .it .n{font-size:12px;font-weight:700}
+  .it .m{font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+  .it .m b{color:var(--text)}
+  .note{width:100%;min-height:50px;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-family:inherit;font-size:13px}
+  .status-bar{font-size:12px;color:var(--muted);min-height:18px;margin-bottom:8px}
+  .status-bar.err{color:var(--danger)} .status-bar.ok{color:var(--accent)}
+  .gate{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+  .gate-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:28px;max-width:420px;width:100%}
+  .gate-box h2{margin:0 0 6px}
+  .gate-box p{color:var(--muted);font-size:13px;margin:0 0 16px}
+  .gate-box input{width:100%;padding:11px;border-radius:9px;border:1px solid var(--border);background:var(--panel2);color:var(--text);margin-bottom:12px}
+  .notice{background:#132a1c;border:1px solid var(--accent-dim);color:#b6f0c9;padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:14px;line-height:1.45}
+  .notice.warn{background:#2a1f0d;border-color:var(--warn);color:#fcd9a0}
+  .tip{position:fixed;pointer-events:none;background:#000;color:#fff;border:1px solid var(--border);padding:6px 9px;border-radius:7px;font-size:12px;z-index:50;display:none;white-space:nowrap}
+  [hidden]{display:none!important}
+  @media(max-width:640px){ .hbar{grid-template-columns:96px 1fr 54px} main{padding:12px} }
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="gate-box">
+    <h2>Back office</h2>
+    <p>Pega la clave de administrador que te dio el script al correr <code>setup()</code>. Se guarda solo en este navegador.</p>
+    <input type="password" id="keyInput" placeholder="Clave de administrador">
+    <button class="btn" id="keySave" style="width:100%">Entrar</button>
+    <div class="status-bar err" id="gateErr" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<div id="app" hidden>
+  <header>
+    <h1>Back office <span>El Closet del Hincha</span></h1>
+    <div class="hbtns">
+      <button class="btn secondary" id="refreshBtn">Actualizar</button>
+      <button class="btn secondary" id="rawBtn">Descargar raw data (.xlsx)</button>
+      <button class="btn secondary" id="logoutBtn">Salir</button>
+    </div>
+  </header>
+  <main>
+    <div class="tabs">
+      <button class="tab active" data-tab="resumen">Resumen</button>
+      <button class="tab" data-tab="pedidos">Pedidos <span class="badge" id="verifyBadge" hidden></span></button>
+      <button class="tab" data-tab="proveedor">Proveedor</button>
+    </div>
+    <div id="statusBar" class="status-bar"></div>
+
+    <section id="tab-resumen">
+      <div class="kpis" id="kpis"></div>
+      <div class="charts">
+        <div class="chart"><h3>Ventas confirmadas por dia</h3><div class="sub">USD, ultimos 30 dias, por fecha de confirmacion del pago</div><div id="chartDaily"></div></div>
+        <div class="chart"><h3>Pedidos por estado</h3><div class="sub">Pedidos activos en cada etapa</div><div id="chartStatus"></div></div>
+        <div class="chart"><h3>Ventas por metodo de pago</h3><div class="sub">USD confirmados (desde "Pago confirmado" en adelante)</div><div id="chartPay"></div></div>
+        <div class="chart"><h3>Equipos mas pedidos</h3><div class="sub">Camisas en pedidos no cancelados</div><div id="chartTeams"></div></div>
+      </div>
+    </section>
+
+    <section id="tab-pedidos" hidden>
+      <div class="toolbar">
+        <input type="search" id="fSearch" placeholder="Buscar codigo, cliente, telefono, email...">
+        <select id="fStatus"><option value="">Todos los estados</option></select>
+        <select id="fPay"><option value="">Todos los metodos</option></select>
+      </div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Codigo</th><th>Fecha</th><th>Cliente</th><th>Telefono</th><th>Pago</th><th class="num">Total</th><th>Estado</th><th>Pago confirmado</th><th></th></tr></thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+      </div>
+      <div class="status-bar" id="ordersCount" style="margin-top:8px"></div>
+    </section>
+
+    <section id="tab-proveedor" hidden>
+      <div class="notice">Aqui entran solo los pedidos en <b>Pago confirmado</b> que todavia no fueron a fabrica. 1) Revisa la lista. 2) Descarga el Excel (lleva la foto de cada camiseta). 3) Cuando se lo mandes al proveedor, marca el lote como enviado: esos pedidos pasan a "Pedido al proveedor" y el cliente recibe un correo.</div>
+      <div class="toolbar">
+        <input type="text" id="batchName" style="min-width:200px">
+        <button class="btn" id="supplierBtn">Descargar Excel para proveedor</button>
+        <button class="btn secondary" id="markBatchBtn" disabled>Marcar lote como enviado</button>
+        <span style="flex:1"></span>
+        <select id="pastBatch"><option value="">Re-descargar un lote anterior...</option></select>
+      </div>
+      <div class="kpis" id="supplierKpis"></div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Foto</th><th>Pedido</th><th>Producto</th><th>Talla</th><th class="num">Cant.</th><th>Nombre</th><th>Dorsal</th><th>Parches</th><th>Notas</th></tr></thead>
+          <tbody id="supplierBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="tip" id="tip"></div>
+
+<script src="config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script>
+var API = (window.CDH_CONFIG && CDH_CONFIG.ORDER_API_URL) || '';
+var KEY = '';
+try { KEY = localStorage.getItem('cdh_admin_key') || ''; } catch(e) {}
+var DATA = { orders: [], items: [], statuses: [], paymentMethods: [] };
+var PAID = ['Pago confirmado','Pedido al proveedor','En camino','Listo para entregar','Entregado'];
+var openCode = null;
+var downloadedCodes = null;
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function money(n){ return '$' + Math.round(Number(n) || 0).toLocaleString('es-VE'); }
+function fmtDate(iso, withTime){
+  if (!iso) return '';
+  var d = new Date(iso); if (isNaN(d)) return '';
+  var s = d.toLocaleDateString('es-VE', { day:'2-digit', month:'2-digit', year:'2-digit' });
+  return withTime ? s + ' ' + d.toLocaleTimeString('es-VE', { hour:'2-digit', minute:'2-digit' }) : s;
+}
+function status(msg, cls){ var b = $('statusBar'); b.textContent = msg || ''; b.className = 'status-bar' + (cls ? ' ' + cls : ''); }
+function stClass(s){ return s === 'Cancelado' ? 'cancel' : (PAID.indexOf(s) >= 0 ? 'ok' : 'pend'); }
+function itemsOf(code){ return DATA.items.filter(function(i){ return i['Codigo pedido'] === code; }); }
+function patchesOf(i){ return [i['Parche 1'], i['Parche 2']].filter(function(x){ return x; }); }
+function productLabel(i){ return String(i['Producto'] || '').replace(/^MISTERIO -> /, ''); }
+
+function api(payload){
+  payload.key = KEY;
+  return fetch(API, { method: 'POST', body: JSON.stringify(payload) }).then(function(r){ return r.json(); }).then(function(res){
+    if (!res.ok) throw new Error(res.error || 'Error');
+    return res;
+  });
+}
+
+// ---------- Login ----------
+function showApp(){ $('gate').hidden = true; $('app').hidden = false; load(); }
+$('keySave').addEventListener('click', function(){
+  var k = $('keyInput').value.trim();
+  if (!API) { $('gateErr').textContent = 'Falta ORDER_API_URL en config.js'; return; }
+  if (!k) return;
+  KEY = k;
+  api({ action: 'adminList' }).then(function(res){
+    try { localStorage.setItem('cdh_admin_key', k); } catch(e) {}
+    DATA = res; showApp();
+  }).catch(function(e){ $('gateErr').textContent = e.message; });
+});
+$('logoutBtn').addEventListener('click', function(){ try { localStorage.removeItem('cdh_admin_key'); } catch(e) {} location.reload(); });
+$('refreshBtn').addEventListener('click', load);
+
+function load(){
+  status('Cargando...');
+  return api({ action: 'adminList' }).then(function(res){
+    DATA = res;
+    status('Actualizado ' + new Date().toLocaleTimeString('es-VE', { hour:'2-digit', minute:'2-digit' }), 'ok');
+    renderAll();
+  }).catch(function(e){
+    status(e.message, 'err');
+    if (/clave/i.test(e.message)) { try { localStorage.removeItem('cdh_admin_key'); } catch(x) {} setTimeout(function(){ location.reload(); }, 1500); }
+  });
+}
+
+function renderAll(){
+  fillFilters();
+  renderSummary();
+  renderOrders();
+  renderSupplier();
+}
+
+// ---------- Tabs ----------
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click', function(){
+    document.querySelectorAll('.tab').forEach(function(x){ x.classList.toggle('active', x === t); });
+    ['resumen','pedidos','proveedor'].forEach(function(n){ $('tab-' + n).hidden = n !== t.getAttribute('data-tab'); });
+  });
+});
+
+// ---------- Tooltip ----------
+document.addEventListener('mousemove', function(e){
+  var el = e.target.closest ? e.target.closest('[data-tip]') : null;
+  var tip = $('tip');
+  if (!el) { tip.style.display = 'none'; return; }
+  tip.textContent = el.getAttribute('data-tip');
+  tip.style.display = 'block';
+  var x = Math.min(e.clientX + 12, window.innerWidth - tip.offsetWidth - 8);
+  tip.style.left = x + 'px'; tip.style.top = (e.clientY + 14) + 'px';
+});
+
+// ---------- Resumen ----------
+function renderSummary(){
+  var o = DATA.orders;
+  var paid = o.filter(function(r){ return PAID.indexOf(r['Estado']) >= 0; });
+  var toVerify = o.filter(function(r){ return r['Estado'] === 'Pendiente de pago'; });
+  var owed = toVerify;
+  var toSupplier = supplierItems(null);
+  var units = toSupplier.reduce(function(a, i){ return a + Number(i['Cantidad'] || 0); }, 0);
+  var sum = function(arr){ return arr.reduce(function(a, r){ return a + Number(r['Total USD'] || 0); }, 0); };
+  $('kpis').innerHTML =
+    kpi('Ventas confirmadas', money(sum(paid)), paid.length + ' pedidos pagados') +
+    kpi('Por cobrar', money(sum(owed)), owed.length + ' pedidos esperando pago', owed.length > 0) +
+    kpi('Camisas por pedir', units, 'pagadas y aun no enviadas a fabrica', units > 0);
+  var badge = $('verifyBadge');
+  badge.hidden = toVerify.length === 0; badge.textContent = toVerify.length;
+
+  // Diario (30 dias)
+  var days = [], today = new Date(); today.setHours(0,0,0,0);
+  for (var d = 29; d >= 0; d--) { var dt = new Date(today); dt.setDate(dt.getDate() - d); days.push({ d: dt, v: 0 }); }
+  paid.forEach(function(r){
+    var c = r['Fecha confirmacion pago']; if (!c) return;
+    var dt = new Date(c); dt.setHours(0,0,0,0);
+    var idx = Math.round((dt - days[0].d) / 86400000);
+    if (idx >= 0 && idx < 30) days[idx].v += Number(r['Total USD'] || 0);
+  });
+  $('chartDaily').innerHTML = dailyChart(days);
+
+  var active = o.filter(function(r){ return r['Estado'] !== 'Entregado' && r['Estado'] !== 'Cancelado'; });
+  $('chartStatus').innerHTML = hbars(DATA.statuses.filter(function(s){ return s !== 'Entregado' && s !== 'Cancelado'; }).map(function(s){
+    return { label: s, value: active.filter(function(r){ return r['Estado'] === s; }).length };
+  }), function(v){ return v; }, ' pedidos');
+
+  $('chartPay').innerHTML = hbars(DATA.paymentMethods.map(function(m){
+    return { label: m, value: sum(paid.filter(function(r){ return r['Metodo de pago'] === m; })) };
+  }), money, '');
+
+  var live = {}; o.forEach(function(r){ if (r['Estado'] !== 'Cancelado') live[r['Codigo']] = true; });
+  var teams = {};
+  DATA.items.forEach(function(i){
+    if (!live[i['Codigo pedido']] || i['Tipo'] === 'parluki' || i['Tipo'] === 'mystery') return;
+    var t = i['Equipo'] || 'Sin equipo';
+    teams[t] = (teams[t] || 0) + Number(i['Cantidad'] || 0);
+  });
+  var top = Object.keys(teams).map(function(t){ return { label: t, value: teams[t] }; }).sort(function(a, b){ return b.value - a.value; }).slice(0, 8);
+  $('chartTeams').innerHTML = hbars(top, function(v){ return v; }, ' camisas');
+}
+function kpi(l, v, s, alert){ return '<div class="kpi' + (alert ? ' alert' : '') + '"><div class="l">' + l + '</div><div class="v">' + v + '</div><div class="s">' + s + '</div></div>'; }
+function hbars(rows, fmt, unit){
+  if (!rows.length || rows.every(function(r){ return !r.value; })) return '<div class="empty-chart">Sin datos todavia</div>';
+  var max = Math.max.apply(null, rows.map(function(r){ return r.value; })) || 1;
+  return rows.map(function(r){
+    return '<div class="hbar" data-tip="' + esc(r.label) + ': ' + esc(fmt(r.value)) + unit + '"><div class="lab">' + esc(r.label) + '</div>' +
+      '<div class="track"><div class="fill" style="width:' + (r.value / max * 100) + '%"></div></div><div class="val">' + esc(fmt(r.value)) + '</div></div>';
+  }).join('');
+}
+function dailyChart(days){
+  var max = Math.max.apply(null, days.map(function(x){ return x.v; }));
+  if (!max) return '<div class="empty-chart">Aun no hay pagos confirmados en los ultimos 30 dias</div>';
+  var W = 600, H = 170, pad = 22, bw = (W - pad) / days.length;
+  var nice = Math.ceil(max / 50) * 50 || max;
+  var svg = '<svg viewBox="0 0 ' + W + ' ' + (H + 20) + '" width="100%" role="img" aria-label="Ventas confirmadas por dia">';
+  [0, .5, 1].forEach(function(f){
+    var y = H - f * (H - 10);
+    svg += '<line x1="' + pad + '" x2="' + W + '" y1="' + y + '" y2="' + y + '" stroke="#2a2f3a" stroke-width="1"/>';
+    svg += '<text x="0" y="' + (y + 3) + '">' + Math.round(nice * f) + '</text>';
+  });
+  days.forEach(function(x, i){
+    var h = x.v / nice * (H - 10);
+    var bx = pad + i * bw + 1.5, w = Math.max(2, bw - 3);
+    var label = x.d.toLocaleDateString('es-VE', { day:'2-digit', month:'short' });
+    svg += '<rect x="' + bx + '" y="' + (H - (H - 10)) + '" width="' + w + '" height="' + (H - 10) + '" fill="transparent" data-tip="' + label + ': ' + money(x.v) + '"/>';
+    if (h > 0) svg += '<rect x="' + bx + '" y="' + (H - h) + '" width="' + w + '" height="' + h + '" rx="3" fill="#22c55e" data-tip="' + label + ': ' + money(x.v) + '"/>';
+    if (i % 7 === (days.length - 1) % 7) svg += '<text x="' + (bx + w / 2) + '" y="' + (H + 14) + '" text-anchor="middle">' + label + '</text>';
+  });
+  return svg + '</svg>';
+}
+
+// ---------- Pedidos ----------
+function fillFilters(){
+  var fs = $('fStatus'), fp = $('fPay');
+  if (fs.options.length <= 1) DATA.statuses.forEach(function(s){ fs.insertAdjacentHTML('beforeend', '<option>' + esc(s) + '</option>'); });
+  if (fp.options.length <= 1) DATA.paymentMethods.forEach(function(s){ fp.insertAdjacentHTML('beforeend', '<option>' + esc(s) + '</option>'); });
+}
+['fSearch','fStatus','fPay'].forEach(function(id){ $(id).addEventListener('input', renderOrders); });
+
+function renderOrders(){
+  var q = $('fSearch').value.trim().toLowerCase(), fs = $('fStatus').value, fp = $('fPay').value;
+  var rows = DATA.orders.slice().reverse().filter(function(r){
+    if (fs && r['Estado'] !== fs) return false;
+    if (fp && r['Metodo de pago'] !== fp) return false;
+    if (q && [r['Codigo'], r['Cliente'], r['Telefono'], r['Email']].join(' ').toLowerCase().indexOf(q) < 0) return false;
+    return true;
+  });
+  var html = '';
+  rows.forEach(function(r){
+    var code = r['Codigo'], st = r['Estado'];
+    var phoneDigits = String(r['Telefono']).replace(/\D/g, '').replace(/^0/, '58');
+    var canConfirm = st === 'Pendiente de pago';
+    html += '<tr class="order-row" data-code="' + esc(code) + '">' +
+      '<td><b>' + esc(code) + '</b></td><td>' + fmtDate(r['Fecha pedido'], true) + '</td><td>' + esc(r['Cliente']) + '<div style="font-size:11px;color:var(--muted)">' + esc(r['Email']) + '</div></td>' +
+      '<td><a href="https://wa.me/' + phoneDigits + '" target="_blank" style="color:var(--accent)" onclick="event.stopPropagation()">' + esc(r['Telefono']) + '</a></td>' +
+      '<td>' + esc(r['Metodo de pago']) + '</td>' +
+      '<td class="num">' + money(r['Total USD']) + '</td>' +
+      '<td><select data-status="' + esc(code) + '" onclick="event.stopPropagation()">' + DATA.statuses.map(function(s){ return '<option' + (s === st ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('') + '</select></td>' +
+      '<td>' + (r['Fecha confirmacion pago'] ? fmtDate(r['Fecha confirmacion pago'], true) : '<span class="st ' + stClass(st) + '">' + (st === 'Cancelado' ? 'Cancelado' : 'Pendiente') + '</span>') + '</td>' +
+      '<td>' + (canConfirm ? '<button class="btn small" data-confirm="' + esc(code) + '">Confirmar pago</button>' : '') + '</td></tr>';
+    if (openCode === code) html += detailRow(r);
+  });
+  $('ordersBody').innerHTML = html || '<tr><td colspan="9" style="color:var(--muted);text-align:center;padding:30px">No hay pedidos con esos filtros</td></tr>';
+  $('ordersCount').textContent = rows.length + ' pedido' + (rows.length === 1 ? '' : 's');
+
+  $('ordersBody').querySelectorAll('tr.order-row').forEach(function(tr){
+    tr.addEventListener('click', function(){ var c = tr.getAttribute('data-code'); openCode = openCode === c ? null : c; renderOrders(); });
+  });
+  $('ordersBody').querySelectorAll('[data-status]').forEach(function(sel){
+    sel.addEventListener('change', function(){
+      var code = sel.getAttribute('data-status');
+      setStatus(code, sel.value);
+    });
+  });
+  $('ordersBody').querySelectorAll('[data-confirm]').forEach(function(b){
+    b.addEventListener('click', function(e){
+      e.stopPropagation();
+      b.disabled = true;
+      var code = b.getAttribute('data-confirm');
+      status('Confirmando pago de ' + code + '...');
+      api({ action: 'adminConfirmPayment', code: code }).then(function(){ status('Pago de ' + code + ' confirmado. Se le envio un correo al cliente.', 'ok'); return load(); })
+        .catch(function(err){ status(err.message, 'err'); b.disabled = false; });
+    });
+  });
+  var note = $('ordersBody').querySelector('[data-note]');
+  if (note) $('ordersBody').querySelector('[data-savenote]').addEventListener('click', function(){
+    api({ action: 'adminSaveNote', code: note.getAttribute('data-note'), note: note.value }).then(function(){ status('Nota guardada', 'ok'); return load(); }).catch(function(err){ status(err.message, 'err'); });
+  });
+}
+
+function setStatus(code, st){
+  status('Cambiando ' + code + ' a "' + st + '"...');
+  api({ action: 'adminSetStatus', code: code, status: st }).then(function(){ status(code + ': ' + st + '. Se le envio un correo al cliente.', 'ok'); return load(); })
+    .catch(function(err){ status(err.message, 'err'); load(); });
+}
+
+function itemCard(i){
+  var m = [];
+  if (i['Tipo'] === 'parluki') m.push(esc(i['Detalle Parluki']));
+  else {
+    m.push('Talla <b>' + esc(i['Talla']) + '</b> &middot; Cant. <b>' + esc(i['Cantidad']) + '</b>');
+    if (i['Nombre estampado']) m.push('Nombre: <b>' + esc(i['Nombre estampado']) + '</b>');
+    if (i['Dorsal'] !== '') m.push('Dorsal: <b>' + esc(i['Dorsal']) + '</b>');
+    if (patchesOf(i).length) m.push('Parches: <b>' + esc(patchesOf(i).join(', ')) + '</b>');
+    if (i['Preferencia misterio']) m.push('Pref. misterio: ' + esc(i['Preferencia misterio']));
+    if (i['Notas cliente']) m.push('Notas: ' + esc(i['Notas cliente']));
+  }
+  m.push(money(i['Subtotal USD']));
+  return '<div class="it">' + (i['Foto URL'] ? '<a href="' + esc(i['Foto URL']) + '" target="_blank"><img src="' + esc(i['Foto URL']) + '" alt="" loading="lazy"></a>' : '') +
+    '<div><div class="n">' + (i['Tipo'] === 'mystery' ? '🎁 ' : '') + esc(i['Producto']) + '</div><div class="m">' + m.join('<br>') + '</div></div></div>';
+}
+
+function detailRow(r){
+  var its = itemsOf(r['Codigo']);
+  return '<tr class="detail"><td colspan="9"><div class="items">' + its.map(itemCard).join('') + '</div>' +
+    '<div style="display:flex;gap:10px;margin-top:10px;align-items:flex-start;flex-wrap:wrap">' +
+    '<textarea class="note" data-note="' + esc(r['Codigo']) + '" placeholder="Nota interna (solo tu la ves)" style="flex:1;min-width:220px">' + esc(r['Notas internas']) + '</textarea>' +
+    '<button class="btn secondary small" data-savenote="1">Guardar nota</button></div>' +
+    '<div style="font-size:12px;color:var(--muted);margin-top:8px">' +
+    (r['Lote proveedor'] ? 'Lote: ' + esc(r['Lote proveedor']) + ' (' + fmtDate(r['Fecha envio a proveedor']) + ')' : '') + '</div></td></tr>';
+}
+
+// ---------- Proveedor ----------
+function supplierItems(batch){
+  var codes = {};
+  DATA.orders.forEach(function(r){
+    if (batch ? r['Lote proveedor'] === batch : r['Estado'] === 'Pago confirmado' && !r['Lote proveedor']) codes[r['Codigo']] = true;
+  });
+  return DATA.items.filter(function(i){ return codes[i['Codigo pedido']] && i['Tipo'] !== 'parluki'; });
+}
+
+function renderSupplier(){
+  if (!$('batchName').value) $('batchName').value = 'Lote ' + new Date().toISOString().slice(0, 10);
+  var its = supplierItems(null);
+  var units = its.reduce(function(a, i){ return a + Number(i['Cantidad'] || 0); }, 0);
+  var orders = {}; its.forEach(function(i){ orders[i['Codigo pedido']] = true; });
+  var custom = its.filter(function(i){ return i['Nombre estampado'] || i['Dorsal'] !== '' || patchesOf(i).length; }).length;
+  $('supplierKpis').innerHTML = kpi('Camisas en el lote', units, Object.keys(orders).length + ' pedidos') + kpi('Lineas personalizadas', custom, 'con nombre, dorsal o parches');
+  $('supplierBtn').disabled = its.length === 0;
+  $('markBatchBtn').disabled = !downloadedCodes;
+  $('supplierBody').innerHTML = its.map(function(i){
+    return '<tr><td>' + (i['Foto URL'] ? '<img src="' + esc(i['Foto URL']) + '" style="width:56px;height:56px;object-fit:cover;border-radius:6px" loading="lazy">' : '') + '</td>' +
+      '<td>' + esc(i['Codigo pedido']) + '</td><td>' + esc(productLabel(i)) + '<div style="font-size:11px;color:var(--muted)">' + esc(i['Descripcion proveedor (original)']) + '</div></td>' +
+      '<td><b>' + esc(i['Talla']) + '</b></td><td class="num">' + esc(i['Cantidad']) + '</td><td>' + esc(i['Nombre estampado']) + '</td><td>' + esc(i['Dorsal']) + '</td>' +
+      '<td>' + esc(patchesOf(i).join(', ')) + '</td><td>' + esc(i['Notas cliente']) + '</td></tr>';
+  }).join('') || '<tr><td colspan="9" style="color:var(--muted);text-align:center;padding:30px">No hay pedidos pagados pendientes de enviar a fabrica</td></tr>';
+
+  var batches = {};
+  DATA.orders.forEach(function(r){ if (r['Lote proveedor']) batches[r['Lote proveedor']] = true; });
+  var pb = $('pastBatch');
+  pb.innerHTML = '<option value="">Re-descargar un lote anterior...</option>' + Object.keys(batches).sort().reverse().map(function(b){ return '<option>' + esc(b) + '</option>'; }).join('');
+}
+
+function fetchImage(url){
+  return fetch(url).then(function(r){ if (!r.ok) throw new Error(); return r.arrayBuffer(); }).then(function(buf){
+    var ext = /\.png($|\?)/i.test(url) ? 'png' : 'jpeg';
+    return { buffer: buf, extension: ext };
+  }).catch(function(){ return null; });
+}
+
+function buildSupplierWorkbook(items, batchName){
+  var wb = new ExcelJS.Workbook();
+  wb.creator = 'El Closet del Hincha';
+  var ws = wb.addWorksheet('Order', { views: [{ state: 'frozen', ySplit: 3 }] });
+  var cols = [
+    { h: '#', w: 5 }, { h: 'Photo', w: 18 }, { h: 'Order code', w: 13 }, { h: 'Product code', w: 17 },
+    { h: 'Product', w: 34 }, { h: 'Supplier description', w: 30 }, { h: 'Size', w: 8 }, { h: 'Qty', w: 6 },
+    { h: 'Name to print', w: 16 }, { h: 'Number', w: 9 }, { h: 'Patch 1', w: 18 }, { h: 'Patch 2', w: 18 }, { h: 'Notes', w: 28 }
+  ];
+  ws.columns = cols.map(function(c){ return { width: c.w }; });
+  ws.pageSetup = { orientation: 'landscape', paperSize: 9, fitToPage: true, fitToWidth: 1, fitToHeight: 0, printTitlesRow: '3:3' };
+  var units = items.reduce(function(a, i){ return a + Number(i['Cantidad'] || 0); }, 0);
+  ws.mergeCells(1, 1, 1, cols.length);
+  ws.getCell(1, 1).value = 'El Closet del Hincha - ' + batchName + ' - ' + units + ' pcs';
+  ws.getCell(1, 1).font = { bold: true, size: 14 };
+  ws.mergeCells(2, 1, 2, cols.length);
+  ws.getCell(2, 1).value = 'Please check photo + size + name + number + patches on every row. Name and number must be printed exactly as written (uppercase).';
+  ws.getCell(2, 1).font = { italic: true, size: 10, color: { argb: 'FF555555' } };
+  var header = ws.getRow(3);
+  cols.forEach(function(c, i){ header.getCell(i + 1).value = c.h; });
+  header.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+  header.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF14161A' } };
+  header.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+  header.height = 22;
+
+  return Promise.all(items.map(function(i){ return i['Foto URL'] ? fetchImage(i['Foto URL']) : Promise.resolve(null); })).then(function(imgs){
+    var missing = 0;
+    items.forEach(function(i, idx){
+      var r = 4 + idx;
+      var row = ws.getRow(r);
+      var vals = [idx + 1, '', i['Codigo pedido'], i['Producto ID'], productLabel(i), i['Descripcion proveedor (original)'], i['Talla'], Number(i['Cantidad']),
+                  i['Nombre estampado'] || '', String(i['Dorsal'] == null ? '' : i['Dorsal']), i['Parche 1'] || '', i['Parche 2'] || '', i['Notas cliente'] || ''];
+      vals.forEach(function(v, c){ row.getCell(c + 1).value = v; });
+      row.height = 96;
+      row.alignment = { vertical: 'middle', wrapText: true };
+      [7, 8, 9, 10].forEach(function(c){ row.getCell(c).font = { bold: true, size: 13 }; row.getCell(c).alignment = { vertical: 'middle', horizontal: 'center', wrapText: true }; });
+      row.getCell(10).numFmt = '@';
+      for (var c = 1; c <= cols.length; c++) row.getCell(c).border = { top: { style: 'thin', color: { argb: 'FFCCCCCC' } }, bottom: { style: 'thin', color: { argb: 'FFCCCCCC' } } };
+      if (imgs[idx]) {
+        var id = wb.addImage(imgs[idx]);
+        ws.addImage(id, { tl: { col: 1.1, row: r - 1 + 0.08 }, ext: { width: 118, height: 118 } });
+      } else { row.getCell(2).value = 'NO PHOTO'; missing++; }
+    });
+
+    // Resumen por talla
+    var sum = wb.addWorksheet('Summary');
+    sum.columns = [{ width: 36 }, { width: 10 }, { width: 10 }];
+    sum.addRow(['Product', 'Size', 'Qty']).font = { bold: true };
+    var agg = {};
+    items.forEach(function(i){ var k = productLabel(i) + '||' + i['Talla']; agg[k] = (agg[k] || 0) + Number(i['Cantidad']); });
+    Object.keys(agg).sort().forEach(function(k){ var p = k.split('||'); sum.addRow([p[0], p[1], agg[k]]); });
+    sum.addRow([]);
+    sum.addRow(['TOTAL', '', units]).font = { bold: true };
+    return { wb: wb, missing: missing };
+  });
+}
+
+function download(buffer, filename){
+  var blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 5000);
+}
+
+function exportSupplier(items, batchName){
+  status('Armando Excel con fotos...');
+  return buildSupplierWorkbook(items, batchName).then(function(res){
+    return res.wb.xlsx.writeBuffer().then(function(buf){
+      download(buf, 'Proveedor - ' + batchName.replace(/[\\/:*?"<>|]/g, '-') + '.xlsx');
+      status('Excel descargado' + (res.missing ? ' - OJO: ' + res.missing + ' fila(s) sin foto' : ''), res.missing ? 'err' : 'ok');
+    });
+  });
+}
+
+$('supplierBtn').addEventListener('click', function(){
+  var batch = $('batchName').value.trim();
+  if (!batch) { status('Ponle nombre al lote', 'err'); return; }
+  var its = supplierItems(null);
+  if (!its.length) return;
+  var codes = {}; its.forEach(function(i){ codes[i['Codigo pedido']] = true; });
+  exportSupplier(its, batch).then(function(){
+    downloadedCodes = Object.keys(codes);
+    $('markBatchBtn').disabled = false;
+  }).catch(function(e){ status('Error armando el Excel: ' + e.message, 'err'); });
+});
+
+$('markBatchBtn').addEventListener('click', function(){
+  if (!downloadedCodes) return;
+  var batch = $('batchName').value.trim();
+  $('markBatchBtn').disabled = true;
+  status('Marcando ' + downloadedCodes.length + ' pedidos como enviados...');
+  api({ action: 'adminMarkBatch', codes: downloadedCodes, batch: batch }).then(function(res){
+    status(res.codes.length + ' pedidos pasaron a "Pedido al proveedor" (' + batch + ')', 'ok');
+    downloadedCodes = null; $('batchName').value = '';
+    return load();
+  }).catch(function(e){ status(e.message, 'err'); $('markBatchBtn').disabled = false; });
+});
+
+$('pastBatch').addEventListener('change', function(){
+  var b = $('pastBatch').value; if (!b) return;
+  exportSupplier(supplierItems(b), b).catch(function(e){ status(e.message, 'err'); });
+  $('pastBatch').value = '';
+});
+
+// ---------- Raw data ----------
+$('rawBtn').addEventListener('click', function(){
+  var wb = new ExcelJS.Workbook();
+  [['Pedidos', DATA.orders], ['Items', DATA.items]].forEach(function(pair){
+    var rows = pair[1];
+    var ws = wb.addWorksheet(pair[0], { views: [{ state: 'frozen', ySplit: 1 }] });
+    if (!rows.length) return;
+    var keys = Object.keys(rows[0]);
+    ws.columns = keys.map(function(k){ return { header: k, key: k, width: Math.max(12, Math.min(40, k.length + 4)) }; });
+    rows.forEach(function(r){
+      var o = {};
+      keys.forEach(function(k){ o[k] = /^Fecha|Ultima/.test(k) && r[k] ? new Date(r[k]) : r[k]; });
+      ws.addRow(o);
+    });
+    ws.getRow(1).font = { bold: true };
+    keys.forEach(function(k, i){ if (/^Fecha|Ultima/.test(k)) ws.getColumn(i + 1).numFmt = 'dd/mm/yyyy hh:mm'; });
+    ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: keys.length } };
+  });
+  wb.xlsx.writeBuffer().then(function(buf){ download(buf, 'Closet del Hincha - raw data ' + new Date().toISOString().slice(0, 10) + '.xlsx'); });
+});
+
+if (KEY && API) showApp();
+</script>
+</body>
+</html>
