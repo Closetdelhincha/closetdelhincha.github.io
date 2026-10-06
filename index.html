@@ -1235,7 +1235,10 @@ function submitOrder() {
   var btn = document.getElementById('submitOrderBtn');
   btn.disabled = true; btn.textContent = 'Registrando pedido...';
   fetch(ORDER_API_URL, { method: 'POST', body: JSON.stringify({ action: 'createOrder', order: orderPayload(customer) }) })
-    .then(function(r){ return r.json(); })
+    .then(function(r){ return r.text(); })
+    .then(function(t){
+      try { return JSON.parse(t); } catch(e) { throw new Error('No recibimos la confirmacion de tu pedido. Es posible que ya se haya registrado: escribenos por WhatsApp antes de enviarlo de nuevo.'); }
+    })
     .then(function(res){
       if (!res.ok) throw new Error(res.error || 'No se pudo registrar el pedido');
       var waText = whatsappOrderText(res.code, customer);
