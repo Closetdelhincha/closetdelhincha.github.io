@@ -179,11 +179,25 @@ function itemsOf(code){ return DATA.items.filter(function(i){ return i['Codigo p
 function patchesOf(i){ return [i['Parche 1'], i['Parche 2']].filter(function(x){ return x; }); }
 function productLabel(i){ return String(i['Producto'] || '').replace(/^MISTERIO -> /, ''); }
 
-function api(payload){
+function api(payload, tries){
+  tries = tries || 0;
   payload.key = KEY;
-  return fetch(API, { method: 'POST', body: JSON.stringify(payload) }).then(function(r){ return r.json(); }).then(function(res){
+  var canRetry = payload.action === 'adminList';
+  function again(){
+    return new Promise(function(ok){ setTimeout(ok, 900); }).then(function(){ return api(payload, tries + 1); });
+  }
+  return fetch(API, { method: 'POST', body: JSON.stringify(payload) }).then(function(r){ return r.text(); }).then(function(t){
+    var res = null;
+    try { res = JSON.parse(t); } catch(e) {}
+    if (!res) {
+      if (canRetry && tries < 3) return again();
+      throw new Error('El servidor tardo en responder. Espera unos segundos y vuelve a intentar.' + (canRetry ? '' : ' Antes de repetir, actualiza la lista para ver si el cambio ya quedo guardado.'));
+    }
     if (!res.ok) throw new Error(res.error || 'Error');
     return res;
+  }, function(){
+    if (canRetry && tries < 3) return again();
+    throw new Error('Sin conexion con el servidor. Revisa tu internet e intenta de nuevo.');
   });
 }
 
