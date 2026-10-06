@@ -1234,6 +1234,15 @@ function submitOrder() {
   submitting = true;
   var btn = document.getElementById('submitOrderBtn');
   btn.disabled = true; btn.textContent = 'Registrando pedido...';
+  var waitNote = document.getElementById('submitWait');
+  if (!waitNote) {
+    waitNote = document.createElement('div');
+    waitNote.id = 'submitWait';
+    waitNote.style.cssText = 'margin-bottom:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:13px;line-height:1.4;text-align:center';
+    btn.parentNode.insertBefore(waitNote, btn);
+  }
+  waitNote.textContent = 'Registrando tu pedido. Puede tardar hasta 30 segundos: no cierres ni recargues la pagina.';
+  waitNote.hidden = false;
   fetch(ORDER_API_URL, { method: 'POST', body: JSON.stringify({ action: 'createOrder', order: orderPayload(customer) }) })
     .then(function(r){ return r.text(); })
     .then(function(t){
@@ -1249,7 +1258,7 @@ function submitOrder() {
       errBox.textContent = (err && err.message && err.message !== 'Failed to fetch') ? err.message : 'No pudimos conectar. Revisa tu internet e intenta de nuevo.';
       errBox.hidden = false;
     })
-    .then(function(){ submitting = false; btn.disabled = false; btn.textContent = 'Confirmar pedido'; });
+    .then(function(){ submitting = false; btn.disabled = false; btn.textContent = 'Confirmar pedido'; var wn = document.getElementById('submitWait'); if (wn) wn.hidden = true; });
 }
 
 function renderDone(res, customer, waText) {
