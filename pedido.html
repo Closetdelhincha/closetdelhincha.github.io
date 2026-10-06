@@ -73,8 +73,23 @@ var API = (window.CDH_CONFIG && CDH_CONFIG.ORDER_API_URL) || '';
 var FLOW = ['Pendiente de pago','Pago confirmado','Pedido al proveedor','En camino','Listo para entregar','Entregado'];
 var current = null;
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
-function call(payload){
-  return fetch(API, { method: 'POST', body: JSON.stringify(payload) }).then(function(r){ return r.json(); });
+function call(payload, tries){
+  tries = tries || 0;
+  function again(){
+    return new Promise(function(ok){ setTimeout(ok, 900); }).then(function(){ return call(payload, tries + 1); });
+  }
+  return fetch(API, { method: 'POST', body: JSON.stringify(payload) }).then(function(r){ return r.text(); }).then(function(t){
+    var res = null;
+    try { res = JSON.parse(t); } catch(e) {}
+    if (!res) {
+      if (tries < 3) return again();
+      return { ok: false, error: 'El servidor tardo en responder. Espera unos segundos y vuelve a intentar.' };
+    }
+    return res;
+  }, function(){
+    if (tries < 3) return again();
+    return { ok: false, error: 'Sin conexion con el servidor. Revisa tu internet e intenta de nuevo.' };
+  });
 }
 function lookup(){
   var code = document.getElementById('code').value.trim().toUpperCase();
